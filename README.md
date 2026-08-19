@@ -207,6 +207,7 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 
 ## 文件
 
+- [INDEPENDENT_AUDIT_REPORT.md](./INDEPENDENT_AUDIT_REPORT.md)：面向独立 AI/人工复核者的声明边界、干净克隆复现命令、证书哈希与对抗测试清单。
 - [LITERATURE_MAP.md](./LITERATURE_MAP.md)：数学、优化、物理和工程的文献地图及迁移边界。
 - [MODEL_AND_ROADMAP.md](./MODEL_AND_ROADMAP.md)：GPU 求解器、严格验证与研究数据路线。
 - [RESEARCH_LOG.md](./RESEARCH_LOG.md)：检索过程、直接命中、负面结果和后续待查项。
@@ -226,6 +227,7 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 - [data/certificates/n03_symmetric_kkt_krawczyk.json](./data/certificates/n03_symmetric_kkt_krawczyk.json)：对称 KKT 根的纯有理 Krawczyk 包含证书。
 - [data/certificates/n05_spectral_target_22_06.json](./data/certificates/n05_spectral_target_22_06.json)：`N=5` spectral 精确下界证书。
 - [data/certificates/n05_componentwise_target_22_06.json](./data/certificates/n05_componentwise_target_22_06.json)：`N=5` componentwise 精确下界证书。
+- [requirements.txt](./requirements.txt)：本次已验证 Python 环境的核心依赖版本。
 
 ## 当前硬件/环境
 
