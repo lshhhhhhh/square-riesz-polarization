@@ -215,6 +215,7 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 
 - [INDEPENDENT_AUDIT_REPORT.md](./INDEPENDENT_AUDIT_REPORT.md)：面向独立 AI/人工复核者的声明边界、干净克隆复现命令、证书哈希与对抗测试清单。
 - [INDEPENDENT_AUDIT_FINDINGS.md](./INDEPENDENT_AUDIT_FINDINGS.md)：独立 AI 的原始审查结果；提交 `2ef5eb9` 保留了审查时的逐字快照。
+- [submission/friedman_20260819](./submission/friedman_20260819)：面向 Friedman 榜单的 9 项候选提交包、232 个字面坐标、哈希和英文邮件草稿；状态为 `DRAFT_NOT_SENT`。
 - [LITERATURE_MAP.md](./LITERATURE_MAP.md)：数学、优化、物理和工程的文献地图及迁移边界。
 - [MODEL_AND_ROADMAP.md](./MODEL_AND_ROADMAP.md)：GPU 求解器、严格验证与研究数据路线。
 - [RESEARCH_LOG.md](./RESEARCH_LOG.md)：检索过程、直接命中、负面结果和后续待查项。
@@ -237,6 +238,7 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 - [data/certificates/n05_componentwise_target_22_06.json](./data/certificates/n05_componentwise_target_22_06.json)：`N=5` componentwise 精确下界证书。
 - [requirements-audit.txt](./requirements-audit.txt)：CPU 精确复核与 CI 所需依赖，不含 PyTorch。
 - [requirements-search.txt](./requirements-search.txt)：GPU 搜索依赖，包含 PyTorch。
+- [requirements-submission.txt](./requirements-submission.txt)：Friedman 投稿 GIF 的可复现渲染依赖。
 - [requirements.txt](./requirements.txt)：兼容入口，等价于搜索环境。
 
 ## 当前硬件/环境

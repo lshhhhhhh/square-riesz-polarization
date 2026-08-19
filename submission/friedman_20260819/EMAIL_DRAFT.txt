@@ -1,0 +1,30 @@
+To: erichfriedman68@gmail.com
+Subject: Nine improved configurations for Maximizing Minimum Light Intensity (n=3, 5, 29-35)
+
+Dear Erich,
+
+I found nine configurations that improve the values currently displayed on your “Maximizing Minimum Light Intensity” page for n=3, 5, and 29 through 35.
+
+    n     current display     numerical I     certified lower bound
+    3       7.507+              7.56839             7.56838963
+    5      21.342+             22.06308            22.06
+   29     259.948+            282.85693           282.8
+   30     268.319+            285.34569           285.34
+   31     274.727+            305.29837           305.2
+   32     279.851+            317.20382           317.1
+   33     287.670+            330.59548           330.5
+   34     297.004+            337.90624           337.8
+   35     303.346+            347.19572           347.1
+
+The attached coordinates are finite decimal literals. For every row, two exact-rational full-square branch-and-bound calculations certify the stated lower bound. The repository includes both replay methods, frozen certificate records, search provenance, and an independent audit. For n=3 there is also an independently replayed global bound 7.56838963 <= P_3 <= 7.58.
+
+Coordinates and a compact record table are attached as CSV files. I have also attached replacement GIFs named 3.gif, 5.gif, and 29.gif through 35.gif; each matches the orientation, colors, pixel dimensions, file type, and filename of the image it replaces, without border or text. The reviewed source and certificates are available here:
+
+https://github.com/lshhhhhhh/square-riesz-polarization
+
+Requested public credit: [PREFERRED PUBLIC CREDIT] and Codex (GPT-5.6 Sol), August 2026.
+
+Please let me know if contour images or a different coordinate format would be more convenient.
+
+Best regards,
+[PREFERRED SIGNATURE]

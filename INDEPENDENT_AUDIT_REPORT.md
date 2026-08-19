@@ -187,9 +187,9 @@ python -m pip install -r requirements-audit.txt
 python -m unittest discover -s tests -v
 ```
 
-Expected CPU-only result at publication: 22 tests pass and 4 PyTorch search tests
+Expected CPU-only result at publication: 23 tests pass and 4 PyTorch search tests
 are explicitly skipped. To reproduce the GPU search environment, install
-`requirements-search.txt`; with PyTorch available, all 26 tests pass. A reviewer
+`requirements-search.txt`; with PyTorch available, all 27 tests pass. A reviewer
 should record the platform, Python implementation, dependency versions, wall
 times, skips, and any warning.
 

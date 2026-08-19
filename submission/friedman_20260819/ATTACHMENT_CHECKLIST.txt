@@ -1,0 +1,25 @@
+Attach these files directly to the new email (do not reply to an old thread):
+
+  coordinates.csv
+  records.csv
+  figures/3.gif       230 x 230
+  figures/5.gif       230 x 230
+  figures/29.gif      230 x 230
+  figures/30.gif      230 x 225
+  figures/31.gif      230 x 227
+  figures/32.gif      230 x 228
+  figures/33.gif      230 x 229
+  figures/34.gif      230 x 230
+  figures/35.gif      230 x 231
+
+Before sending:
+
+  [ ] Replace both attribution placeholders with the contributor's full name.
+  [ ] Replace the repository URL with a stable reviewed main/tag/commit URL.
+  [ ] Re-check the live board values.
+  [ ] Open all nine GIFs once after attaching them.
+  [ ] Obtain explicit final approval from the user.
+
+Do not attach EMAIL_DRAFT.txt, README.md, metadata.json, or SHA256SUMS.txt unless
+Erich asks for audit details. They are review/provenance files, not primary
+submission attachments.
