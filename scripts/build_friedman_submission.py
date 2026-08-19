@@ -227,7 +227,8 @@ def build(output_dir: Path, project_root: Path = PROJECT_ROOT) -> dict[str, obje
         "coordinate_count": len(coordinate_rows) - 1,
         "records": [record.n for record in RECORDS],
         "claim_scope": "fixed_literal_decimal_configurations_only",
-        "external_status": "DRAFT_NOT_SENT",
+        "external_status": "USER_REPORTED_EMAIL_SUBMITTED",
+        "sent_materials_match": "UNKNOWN_NOT_ARCHIVED",
     }
     metadata_path = output_dir / "metadata.json"
     metadata_path.write_text(
@@ -239,6 +240,7 @@ def build(output_dir: Path, project_root: Path = PROJECT_ROOT) -> dict[str, obje
         output_dir / "README.md",
         output_dir / "EMAIL_DRAFT.txt",
         output_dir / "ATTACHMENT_CHECKLIST.txt",
+        output_dir / "SUBMISSION_STATUS.md",
         *(output_dir / "figures").glob("*.gif"),
     ]
     support_paths = [

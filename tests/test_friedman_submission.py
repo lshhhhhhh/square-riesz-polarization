@@ -14,7 +14,12 @@ class FriedmanSubmissionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
             metadata = build(output)
-            self.assertEqual(metadata["external_status"], "DRAFT_NOT_SENT")
+            self.assertEqual(
+                metadata["external_status"], "USER_REPORTED_EMAIL_SUBMITTED"
+            )
+            self.assertEqual(
+                metadata["sent_materials_match"], "UNKNOWN_NOT_ARCHIVED"
+            )
             self.assertEqual(metadata["records"], [3, 5, 29, 30, 31, 32, 33, 34, 35])
             self.assertEqual(metadata["coordinate_count"], 232)
 

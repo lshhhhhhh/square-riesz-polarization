@@ -18,5 +18,6 @@
     35
   ],
   "claim_scope": "fixed_literal_decimal_configurations_only",
-  "external_status": "DRAFT_NOT_SENT"
+  "external_status": "USER_REPORTED_EMAIL_SUBMITTED",
+  "sent_materials_match": "UNKNOWN_NOT_ARCHIVED"
 }

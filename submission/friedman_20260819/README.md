@@ -1,6 +1,10 @@
 # Friedman record-board submission package
 
-Status: **draft, not sent**.
+Status: **the user reports that an email was sent externally**. The exact sent
+message, public credit, attachment selection, and send timestamp were not
+captured in this repository; see `SUBMISSION_STATUS.md`. Files here preserve
+the reviewed pre-send package and must not be represented as an exact copy of
+the transmitted email.
 
 This directory packages nine finite-decimal configurations for Erich Friedman's
 [Maximizing Minimum Light Intensity](https://erich-friedman.github.io/packing/light/)
@@ -70,7 +74,7 @@ The GIF renderer additionally uses the pinned packages in
 are intentional: each new GIF matches the exact dimensions of the particular
 image it replaces.
 
-Before sending, replace `[PREFERRED PUBLIC CREDIT]` and `[PREFERRED SIGNATURE]`
-with the contributor's full name, merge or otherwise publish
-the reviewed commit at a stable URL, re-check the live board, and obtain explicit
-user approval. This package does not authorize email transmission.
+`EMAIL_DRAFT.txt` intentionally remains the reviewed template, including its
+placeholders. The user handled transmission outside this project. This package
+does not authorize a follow-up email or assert that Friedman accepted the
+records.

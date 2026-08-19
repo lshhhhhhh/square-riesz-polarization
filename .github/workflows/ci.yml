@@ -55,6 +55,13 @@ jobs:
             --radius 1e-40 \
             --output "$RUNNER_TEMP/n03-krawczyk.json"
 
+      - name: Replay N=3 active-minimum isolation
+        run: |
+          python scripts/certify_n3_active_minima.py \
+            --kkt-certificate "$RUNNER_TEMP/n03-krawczyk.json" \
+            --gap 1/10 \
+            --output "$RUNNER_TEMP/n03-active-minima.json"
+
       - name: Verify compact global upper certificate twice
         run: |
           python scripts/verify_global_upper_certificate.py \

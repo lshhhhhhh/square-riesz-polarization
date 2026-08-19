@@ -122,9 +122,11 @@ P_3\le 7.58.
 \]
 
 相对缺口约 `0.153%`。纯有理 Krawczyk 检验还证明：半径 `1e-40` 的对称
-七维 KKT 盒内存在唯一真根，且三个活跃轨道权重为正。这仍**不证明 N=3
-全局最优或完整局部最优**；剩余局部活跃集隔离与二阶充分条件见
-[PROOF_SKELETON.md](./PROOF_SKELETON.md)。未经用户批准，不进行任何对外提交。
+七维 KKT 盒内存在唯一真根，且三个活跃轨道权重为正。进一步的纯有理导数区间
+与空间覆盖证明：该真根的全局最暗观察点**恰好**是四角和下边中点，五个邻域外
+比根值至少高 `0.1`。这仍**不证明 N=3 全局最优或完整局部最优**；剩余工作是
+全六维五分支 epigraph 条件和移动边极小的区间二阶充分条件，见
+[PROOF_SKELETON.md](./PROOF_SKELETON.md)。
 
 ## 当前结果：N=5
 
@@ -215,12 +217,13 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 
 - [INDEPENDENT_AUDIT_REPORT.md](./INDEPENDENT_AUDIT_REPORT.md)：面向独立 AI/人工复核者的声明边界、干净克隆复现命令、证书哈希与对抗测试清单。
 - [INDEPENDENT_AUDIT_FINDINGS.md](./INDEPENDENT_AUDIT_FINDINGS.md)：独立 AI 的原始审查结果；提交 `2ef5eb9` 保留了审查时的逐字快照。
-- [submission/friedman_20260819](./submission/friedman_20260819)：面向 Friedman 榜单的 9 项候选提交包、232 个字面坐标、哈希和英文邮件草稿；状态为 `DRAFT_NOT_SENT`。
+- [submission/friedman_20260819](./submission/friedman_20260819)：面向 Friedman 榜单的 9 项候选提交包、232 个字面坐标、哈希和英文邮件草稿；用户报告已在项目外发送，实际发件内容未归档且不代表已被接收。
 - [LITERATURE_MAP.md](./LITERATURE_MAP.md)：数学、优化、物理和工程的文献地图及迁移边界。
 - [MODEL_AND_ROADMAP.md](./MODEL_AND_ROADMAP.md)：GPU 求解器、严格验证与研究数据路线。
 - [RESEARCH_LOG.md](./RESEARCH_LOG.md)：检索过程、直接命中、负面结果和后续待查项。
 - [PROOF_ROI.md](./PROOF_ROI.md)：`N=3` 局部/全局最优证明的价值、风险、工具匹配与早停闸门。
 - [PROOF_SKELETON.md](./PROOF_SKELETON.md)：局部 KKT/包络 Hessian 与全局有限见证证明骨架。
+- [N3_ACTIVE_MINIMA_REPORT.md](./N3_ACTIVE_MINIMA_REPORT.md)：新 A2 证书的独立复核说明、严格声明边界与对抗检查清单。
 - [scripts/record_hunt.py](./scripts/record_hunt.py)：GPU 生产者与 CPU 连续域验证并行、可恢复的纪录搜索器。
 - [data/candidates/n03_symmetric.json](./data/candidates/n03_symmetric.json)：冻结坐标、高精度 KKT 与连续域诊断。
 - [data/candidates/n05_hunt_best.json](./data/candidates/n05_hunt_best.json)：首轮严格超过 Friedman 显示值的 `N=5` 构型。
@@ -233,6 +236,8 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 - [data/certificates/n03_global_upper_7_58.zip](./data/certificates/n03_global_upper_7_58.zip)：全六维源空间的精确有限见证上界树分发包；解压为 `n03_global_upper_7_58.json` 后 SHA-256 为 `6F6F936767A73A548FCAFDD18A4F739AED4AE201B093271009BEC4DEE2E0ACEF`。原始 JSON 约 95.9 MiB，不重复纳入 Git。
 - [data/certificates/SHA256SUMS](./data/certificates/SHA256SUMS)：压缩包与解压后原始证书的校验值。
 - [data/certificates/n03_symmetric_kkt_krawczyk.json](./data/certificates/n03_symmetric_kkt_krawczyk.json)：对称 KKT 根的纯有理 Krawczyk 包含证书。
+- [data/certificates/n03_active_minima_isolation.json](./data/certificates/n03_active_minima_isolation.json)：证明对称 KKT 根恰有五个全局最暗观察点的纯有理导数与补集覆盖证书。
+- [scripts/certify_n3_active_minima.py](./scripts/certify_n3_active_minima.py)：重放活跃最暗点隔离证书。
 - [scripts/verify_global_upper_certificate_cleanroom.py](./scripts/verify_global_upper_certificate_cleanroom.py)：审查后加固的第二套纯标准库全局上界验证器。
 - [data/certificates/n05_spectral_target_22_06.json](./data/certificates/n05_spectral_target_22_06.json)：`N=5` spectral 精确下界证书。
 - [data/certificates/n05_componentwise_target_22_06.json](./data/certificates/n05_componentwise_target_22_06.json)：`N=5` componentwise 精确下界证书。
