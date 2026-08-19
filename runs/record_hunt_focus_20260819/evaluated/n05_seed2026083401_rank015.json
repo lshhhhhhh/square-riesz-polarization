@@ -1,0 +1,188 @@
+{
+  "baseline": 21.342,
+  "continuous_evaluation": {
+    "active_minima": [
+      {
+        "hessian_eigenvalues": [
+          -459.1388916532271,
+          1497.1157420960199
+        ],
+        "location": "corner",
+        "point": [
+          1.0,
+          0.0
+        ],
+        "value": 21.916713295881742
+      }
+    ],
+    "active_tolerance": 2e-06,
+    "darkest_point": [
+      1.0,
+      0.0
+    ],
+    "grid_size": 257,
+    "local_minima": [
+      {
+        "hessian_eigenvalues": [
+          -459.1388916532271,
+          1497.1157420960199
+        ],
+        "location": "corner",
+        "point": [
+          1.0,
+          0.0
+        ],
+        "value": 21.916713295881742
+      },
+      {
+        "hessian_eigenvalues": [
+          -562.3478983599127,
+          1725.5174385701505
+        ],
+        "location": "corner",
+        "point": [
+          1.0,
+          1.0
+        ],
+        "value": 21.935478512121456
+      },
+      {
+        "hessian_eigenvalues": [
+          -56.20724734618632,
+          709.1078038355854
+        ],
+        "location": "edge",
+        "point": [
+          0.4981153443624667,
+          1.0
+        ],
+        "value": 21.998384815853353
+      },
+      {
+        "hessian_eigenvalues": [
+          -68.45000881043288,
+          701.3552590186653
+        ],
+        "location": "edge",
+        "point": [
+          0.0,
+          0.5959428098661205
+        ],
+        "value": 22.196315653371485
+      },
+      {
+        "hessian_eigenvalues": [
+          -84.20374234127544,
+          729.6990787523741
+        ],
+        "location": "edge",
+        "point": [
+          1.0,
+          0.6023271117997583
+        ],
+        "value": 22.205504370359513
+      },
+      {
+        "hessian_eigenvalues": [
+          -582.4520365789758,
+          1784.3230551172044
+        ],
+        "location": "corner",
+        "point": [
+          0.0,
+          1.0
+        ],
+        "value": 22.23681055841333
+      },
+      {
+        "hessian_eigenvalues": [
+          191.28000522042655,
+          501.0257960345459
+        ],
+        "location": "edge",
+        "point": [
+          0.7562914187101643,
+          0.0
+        ],
+        "value": 22.297485533254424
+      },
+      {
+        "hessian_eigenvalues": [
+          -493.22188284019154,
+          1607.653983039795
+        ],
+        "location": "corner",
+        "point": [
+          0.0,
+          0.0
+        ],
+        "value": 22.792353749377416
+      },
+      {
+        "hessian_eigenvalues": [
+          228.19790353350356,
+          634.3156463062975
+        ],
+        "location": "edge",
+        "point": [
+          0.2390347518875279,
+          0.0
+        ],
+        "value": 24.431098477656114
+      },
+      {
+        "hessian_eigenvalues": [
+          251.34938463260335,
+          351.8586779821866
+        ],
+        "location": "interior",
+        "point": [
+          0.5039356114186396,
+          0.6283334210511622
+        ],
+        "value": 25.82904512597878
+      }
+    ],
+    "minimum": 21.916713295881742,
+    "source_count": 5
+  },
+  "continuous_minimum": 21.916713295881742,
+  "coordinates": [
+    [
+      0.19441084563732147,
+      0.8565012216567993
+    ],
+    [
+      0.9485684037208557,
+      0.2471260130405426
+    ],
+    [
+      0.4828929901123047,
+      0.226749986410141
+    ],
+    [
+      0.06391265988349915,
+      0.23996049165725708
+    ],
+    [
+      0.802359938621521,
+      0.8574796915054321
+    ]
+  ],
+  "cpu_elapsed_seconds": 0.04214969999156892,
+  "evaluation_grid": 257,
+  "evaluation_id": "n05_seed2026083401_rank015",
+  "finished_at": "2026-08-19T04:10:31.283138+00:00",
+  "gpu_result": "E:\\math\\problems\\square-riesz-polarization\\runs\\record_hunt_focus_20260819\\gpu\\n05_seed2026083401.json",
+  "job_id": "n05_seed2026083401",
+  "margin_over_baseline": 0.5747132958817431,
+  "n": 5,
+  "population_index": 1258,
+  "provisional_hit": true,
+  "rank": 15,
+  "rigor": "numerical_only_pending_literal_decimal_exact_certificate",
+  "sampled_minimum": 21.91671371459961,
+  "schema_version": 1,
+  "seed": 2026083401,
+  "stage": "cpu_continuous_evaluation"
+}

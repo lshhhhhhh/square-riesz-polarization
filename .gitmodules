@@ -1,0 +1,3 @@
+[submodule "upstream/certificates"]
+	path = upstream/certificates
+	url = https://github.com/Driedsandwich/square-riesz-polarization-certificates.git

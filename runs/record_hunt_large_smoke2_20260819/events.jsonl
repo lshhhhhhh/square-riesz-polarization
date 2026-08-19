@@ -1,0 +1,7 @@
+{"at": "2026-08-19T04:27:19.436742+00:00", "event": "gpu_job_start", "job": 1, "job_count": 1, "job_id": "n35_seed2026085001", "n": 35, "pending_cpu": 0, "seed": 2026085001}
+{"at": "2026-08-19T04:27:20.856763+00:00", "event": "gpu_job_complete", "gpu_seconds": 1.2844952999730594, "job_id": "n35_seed2026085001", "n": 35, "peak_allocated_mib": 317.0322265625, "pending_cpu": 4, "sampled_best": 330.9007263183594}
+{"at": "2026-08-19T04:27:22.148543+00:00", "evaluation_id": "n35_seed2026085001_rank002", "event": "cpu_evaluation_complete", "margin": -1.1709618673111208, "minimum": 328.5379381326889, "n": 35, "pending_cpu": 3, "provisional_hit": false}
+{"at": "2026-08-19T04:27:22.149844+00:00", "evaluation_id": "n35_seed2026085001_rank001", "event": "cpu_evaluation_complete", "margin": -1.193421137123778, "minimum": 328.51547886287625, "n": 35, "pending_cpu": 2, "provisional_hit": false}
+{"at": "2026-08-19T04:27:22.152321+00:00", "evaluation_id": "n35_seed2026085001_rank003", "event": "cpu_evaluation_complete", "margin": -1.2089922092097822, "minimum": 328.49990779079025, "n": 35, "pending_cpu": 1, "provisional_hit": false}
+{"at": "2026-08-19T04:27:22.153124+00:00", "evaluation_id": "n35_seed2026085001_rank004", "event": "cpu_evaluation_complete", "margin": -1.2481962477784236, "minimum": 328.4607037522216, "n": 35, "pending_cpu": 0, "provisional_hit": false}
+{"at": "2026-08-19T04:27:22.195018+00:00", "elapsed_seconds": 2.759420800022781, "event": "hunt_complete"}

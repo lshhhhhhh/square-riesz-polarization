@@ -1,0 +1,5 @@
+{"at": "2026-08-19T04:26:05.124155+00:00", "event": "gpu_job_start", "job": 1, "job_count": 1, "job_id": "n35_seed2026085000", "n": 35, "pending_cpu": 0, "seed": 2026085000}
+{"at": "2026-08-19T04:26:06.372394+00:00", "event": "gpu_job_complete", "gpu_seconds": 1.0954329999512993, "job_id": "n35_seed2026085000", "n": 35, "peak_allocated_mib": 48.490234375, "pending_cpu": 2, "sampled_best": 291.81256103515625}
+{"at": "2026-08-19T04:26:07.503371+00:00", "evaluation_id": "n35_seed2026085000_rank002", "event": "cpu_evaluation_complete", "margin": -44.06645005992493, "minimum": 285.6424499400751, "n": 35, "pending_cpu": 1, "provisional_hit": false}
+{"at": "2026-08-19T04:26:07.507584+00:00", "evaluation_id": "n35_seed2026085000_rank001", "event": "cpu_evaluation_complete", "margin": -39.016414551976254, "minimum": 290.6924854480238, "n": 35, "pending_cpu": 0, "provisional_hit": false}
+{"at": "2026-08-19T04:26:07.552125+00:00", "elapsed_seconds": 2.4292886999901384, "event": "hunt_complete"}

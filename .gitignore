@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# The byte-identical compressed certificate is tracked instead.  Keeping the
+# 95.9 MiB expanded JSON out of Git makes ordinary clones substantially smaller.
+data/certificates/n03_global_upper_7_58.json

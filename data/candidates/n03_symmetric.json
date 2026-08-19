@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "n": 3,
+  "family": "vertical_reflection_pair_plus_axis_source",
+  "coordinate_significant_digits": 19,
+  "coordinates": [
+    [
+      "0.1198267882563919621",
+      "0.4023192320163492298"
+    ],
+    [
+      "0.8801732117436080379",
+      "0.4023192320163492298"
+    ],
+    [
+      "0.5",
+      "0.9801974656079521770"
+    ]
+  ],
+  "high_precision_parameters": {
+    "a": "0.1198267882563919620961356717571924428475472039217964068818885695285838784928214275304419123765308303",
+    "b": "0.4023192320163492297738430706957316946488334559138463748873265910967449528076055997626571863530467222",
+    "c": "0.9801974656079521769761480175995564004640400994164229719626479510180503138063515257088731686160463849",
+    "level": "7.56838964002969021504794622040681162191290515045945628981102194954587965540503113980678961652529857",
+    "active_weights": [
+      "0.7136829987015741180241805457425549091988696481158093970664499417961041621260271905658205849198422225",
+      "0.1999045620421178907304601729936555880783527815256967738105687637157936994529384929098486670771789092",
+      "0.08641243925630799124535928126378950272277757035849382912298129448810213842103431652433074800297886827"
+    ],
+    "maximum_absolute_kkt_residual": "1.714481086923412473323675322458011439177864992234197991822688764841448953860107293513172032790258044e-100"
+  },
+  "continuous_evaluation": {
+    "source_count": 3,
+    "minimum": 7.5683896400296895,
+    "darkest_point": [
+      0.5000000000000001,
+      0.0
+    ],
+    "grid_size": 257,
+    "local_minima": [
+      {
+        "point": [
+          0.5000000000000001,
+          0.0
+        ],
+        "value": 7.5683896400296895,
+        "location": "edge",
+        "hessian_eigenvalues": [
+          35.62283759707284,
+          53.928836761825075
+        ]
+      },
+      {
+        "point": [
+          0.0,
+          0.0
+        ],
+        "value": 7.56838964002969,
+        "location": "corner",
+        "hessian_eigenvalues": [
+          -62.81484902600655,
+          198.91468853988837
+        ]
+      },
+      {
+        "point": [
+          1.0,
+          0.0
+        ],
+        "value": 7.56838964002969,
+        "location": "corner",
+        "hessian_eigenvalues": [
+          -62.81484902600654,
+          198.91468853988837
+        ]
+      },
+      {
+        "point": [
+          0.0,
+          1.0
+        ],
+        "value": 7.56838964002969,
+        "location": "corner",
+        "hessian_eigenvalues": [
+          5.391398385162652,
+          90.5005635995341
+        ]
+      },
+      {
+        "point": [
+          1.0,
+          1.0
+        ],
+        "value": 7.56838964002969,
+        "location": "corner",
+        "hessian_eigenvalues": [
+          5.3913983851626535,
+          90.5005635995341
+        ]
+      }
+    ],
+    "active_minima": [
+      {
+        "point": [
+          0.5000000000000001,
+          0.0
+        ],
+        "value": 7.5683896400296895,
+        "location": "edge",
+        "hessian_eigenvalues": [
+          35.62283759707284,
+          53.928836761825075
+        ]
+      },
+      {
+        "point": [
+          0.0,
+          0.0
+        ],
+        "value": 7.56838964002969,
+        "location": "corner",
+        "hessian_eigenvalues": [
+          -62.81484902600655,
+          198.91468853988837
+        ]
+      },
+      {
+        "point": [
+          1.0,
+          0.0
+        ],
+        "value": 7.56838964002969,
+        "location": "corner",
+        "hessian_eigenvalues": [
+          -62.81484902600654,
+          198.91468853988837
+        ]
+      },
+      {
+        "point": [
+          0.0,
+          1.0
+        ],
+        "value": 7.56838964002969,
+        "location": "corner",
+        "hessian_eigenvalues": [
+          5.391398385162652,
+          90.5005635995341
+        ]
+      },
+      {
+        "point": [
+          1.0,
+          1.0
+        ],
+        "value": 7.56838964002969,
+        "location": "corner",
+        "hessian_eigenvalues": [
+          5.3913983851626535,
+          90.5005635995341
+        ]
+      }
+    ],
+    "active_tolerance": 1e-09
+  },
+  "full_six_dimensional_kkt_diagnostic": {
+    "active_points": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.5,
+        0.0
+      ]
+    ],
+    "active_point_weights": [
+      0.3568414993507871,
+      0.3568414993507871,
+      0.09995228102105895,
+      0.09995228102105895,
+      0.086412439256308
+    ],
+    "per_source": [
+      {
+        "gradient": [
+          1.1102230246251565e-16,
+          -4.440892098500626e-16
+        ],
+        "weighted_hessian_eigenvalues": [
+          -5.582677048588594,
+          34.04726826025836
+        ]
+      },
+      {
+        "gradient": [
+          -3.3306690738754696e-16,
+          -2.220446049250313e-16
+        ],
+        "weighted_hessian_eigenvalues": [
+          -5.582677048588597,
+          34.04726826025836
+        ]
+      },
+      {
+        "gradient": [
+          0.0,
+          -8.326672684688674e-17
+        ],
+        "weighted_hessian_eigenvalues": [
+          -21.46918291803737,
+          67.9218209081776
+        ]
+      }
+    ],
+    "active_constraint_gradient_rank": 4,
+    "critical_subspace_dimension": 2,
+    "projected_weighted_hessian_eigenvalues": [
+      -20.90257313208465,
+      3.3805183884131838
+    ],
+    "moving_edge_minimum_projected_hessian_eigenvalues": [
+      -20.902573132084655,
+      -1.627925405678822
+    ],
+    "bottom_midpoint_observer_xx_curvature": 35.62283759707285,
+    "maximum_absolute_source_gradient": 4.440892098500626e-16,
+    "interpretation": "zero weighted gradients establish first-order stationarity; the continuous objective's second-order test also requires the moving edge minimum's Schur-complement correction"
+  },
+  "rigor": "numerical_candidate_only_until_exact_certificate_is_run"
+}

@@ -1,0 +1,41 @@
+{
+  "base_seed": 2026086000,
+  "baselines": {
+    "29": 272.49597364647275,
+    "31": 294.2088932704252,
+    "32": 304.2807991298781,
+    "33": 311.66564132966664,
+    "34": 323.40992809730864,
+    "35": 330.4128078097603
+  },
+  "batch": 512,
+  "claim_boundary": "hits_are_numerical_until_both_exact_certifiers_pass",
+  "cpu_workers": 6,
+  "created_or_resumed_at": "2026-08-19T04:31:54.544927+00:00",
+  "evaluation_grid": 257,
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "grid_size": 129,
+  "incumbent_root": "E:\\math\\problems\\square-riesz-polarization\\upstream\\certificates\\data\\configurations",
+  "incumbent_witness_counts": {
+    "29": 34,
+    "31": 44,
+    "32": 42,
+    "33": 40,
+    "34": 31,
+    "35": 39
+  },
+  "initialization": "incumbent-jitter",
+  "jitter": 0.001,
+  "n_values": [
+    29,
+    31,
+    32,
+    33,
+    34,
+    35
+  ],
+  "schema_version": 1,
+  "seeds_per_n": 4,
+  "steps": 500,
+  "top_k": 12
+}

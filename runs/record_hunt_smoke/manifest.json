@@ -1,0 +1,20 @@
+{
+  "base_seed": 2026081990,
+  "baselines": {
+    "4": 17.729
+  },
+  "batch": 64,
+  "claim_boundary": "hits_are_numerical_until_both_exact_certifiers_pass",
+  "cpu_workers": 2,
+  "created_or_resumed_at": "2026-08-19T03:57:18.597758+00:00",
+  "evaluation_grid": 65,
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "grid_size": 33,
+  "n_values": [
+    4
+  ],
+  "schema_version": 1,
+  "seeds_per_n": 1,
+  "steps": 20,
+  "top_k": 2
+}
