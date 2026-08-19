@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "board_checked_date": "2026-08-19",
+  "board_url": "https://erich-friedman.github.io/packing/light/",
+  "submission_guidelines_url": "https://erich-friedman.github.io/packing/submit.html",
+  "public_contact": "erichfriedman68@gmail.com",
+  "record_count": 9,
+  "coordinate_count": 232,
+  "records": [
+    3,
+    5,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35
+  ],
+  "claim_scope": "fixed_literal_decimal_configurations_only",
+  "external_status": "USER_REPORTED_EMAIL_SUBMITTED",
+  "sent_materials_match": "UNKNOWN_NOT_ARCHIVED"
+}

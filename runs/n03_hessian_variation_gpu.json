@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "rigor": "not_a_proof_float64_gpu_stress_test",
+  "device": "NVIDIA GeForce RTX 5090",
+  "seed": 2026081903,
+  "cone_ratio": 0.7,
+  "cone_multiplier": 1.3230840091475613,
+  "reports": [
+    {
+      "radius": 0.0001,
+      "random_samples": 1000000,
+      "maximum_observed_hessian_spectral_variation": 0.030278555617794474,
+      "maximum_observed_adjusted_cone_eigenvalue": -0.3783667849898112,
+      "maximum_variation_sources": [
+        [
+          0.11992678825639197,
+          0.4024192320163492
+        ],
+        [
+          0.8800732117436081,
+          0.40221923201634924
+        ],
+        [
+          0.5001,
+          0.9800974656079522
+        ]
+      ]
+    },
+    {
+      "radius": 0.0005,
+      "random_samples": 1000000,
+      "maximum_observed_hessian_spectral_variation": 0.15160384233180096,
+      "maximum_observed_adjusted_cone_eigenvalue": -0.3406331545996151,
+      "maximum_variation_sources": [
+        [
+          0.12032678825639197,
+          0.4028192320163492
+        ],
+        [
+          0.8796732117436081,
+          0.4018192320163492
+        ],
+        [
+          0.5005,
+          0.9796974656079522
+        ]
+      ]
+    },
+    {
+      "radius": 0.001,
+      "random_samples": 1000000,
+      "maximum_observed_hessian_spectral_variation": 0.3037601645469615,
+      "maximum_observed_adjusted_cone_eigenvalue": -0.2934878049906102,
+      "maximum_variation_sources": [
+        [
+          0.12082678825639197,
+          0.4013192320163492
+        ],
+        [
+          0.8791732117436081,
+          0.4033192320163492
+        ],
+        [
+          0.499,
+          0.9791974656079522
+        ]
+      ]
+    },
+    {
+      "radius": 0.003,
+      "random_samples": 1000000,
+      "maximum_observed_hessian_spectral_variation": 0.918781927121964,
+      "maximum_observed_adjusted_cone_eigenvalue": -0.1051553484958722,
+      "maximum_variation_sources": [
+        [
+          0.12282678825639197,
+          0.3993192320163492
+        ],
+        [
+          0.8771732117436081,
+          0.40531923201634923
+        ],
+        [
+          0.497,
+          0.9771974656079522
+        ]
+      ]
+    }
+  ],
+  "elapsed_seconds": 57.03142419998767
+}

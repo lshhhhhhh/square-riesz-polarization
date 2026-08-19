@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "rigor": "not_a_proof_float64_roi_analysis",
+  "kkt_path": "E:\\math\\problems\\square-riesz-polarization\\data\\certificates\\n03_symmetric_kkt_krawczyk.json",
+  "gradient_singular_values": [
+    31.08652435964235,
+    28.409838794354247,
+    22.163657639117474,
+    12.851388841423605,
+    2.9109371072301566e-16
+  ],
+  "weighted_stationarity_residual_linf": 3.3306690738754696e-16,
+  "transverse_first_order_inradius": 1.2449759526181918,
+  "transverse_simplex_facet_distances": [
+    9.481196044925852,
+    9.481196044925854,
+    2.486007106143468,
+    2.4860071061434663,
+    1.2449759526181918
+  ],
+  "critical_weighted_hessian_eigenvalues": [
+    -20.902573132084655,
+    -1.6279254056788157
+  ],
+  "critical_block_maximum": -1.6279254056788157,
+  "critical_transverse_cross_norm": 18.732570760939915,
+  "transverse_block_maximum": 63.79267676261148,
+  "individual_branch_curvature_maximum": 193.21671018143343,
+  "near_cone_transverse_ratio_root_bound": 0.040607,
+  "far_cone_radius_root_hessian_only": 0.0005232828308125503,
+  "s_lemma_near_cone_transverse_ratio_root_bound": 0.04090277996863045,
+  "s_lemma_boundary_diagnostic_upper": -1.7230124660372326e-08,
+  "s_lemma_boundary_multiplier": 514.9297946665607,
+  "s_lemma_far_cone_radius_root_hessian_only": 0.000527107380092858,
+  "s_lemma_far_cone_linf_radius_root_hessian_only": 0.00021519068681379494,
+  "gradient_difference_cone_ratio_root_bound": 0.9067232680976781,
+  "gradient_difference_cone_boundary_upper": -1.7223557913226273e-08,
+  "gradient_difference_cone_multiplier": 1.047471831918284,
+  "gradient_difference_cone_tradeoff": [
+    {
+      "ratio": 0.1,
+      "root_upper": -1.4577206929067883,
+      "multiplier": 8.568490100996694
+    },
+    {
+      "ratio": 0.2,
+      "root_upper": -1.2851873297726104,
+      "multiplier": 4.342392899770493
+    },
+    {
+      "ratio": 0.3,
+      "root_upper": -1.1103312185574463,
+      "multiplier": 2.9335909365387662
+    },
+    {
+      "ratio": 0.4,
+      "root_upper": -0.933158414705618,
+      "multiplier": 2.2291137007933224
+    },
+    {
+      "ratio": 0.5,
+      "root_upper": -0.7536751207781673,
+      "multiplier": 1.80636434865689
+    },
+    {
+      "ratio": 0.6,
+      "root_upper": -0.5718876807473162,
+      "multiplier": 1.5244782569365325
+    },
+    {
+      "ratio": 0.7,
+      "root_upper": -0.38780257461814194,
+      "multiplier": 1.3230840091475613
+    },
+    {
+      "ratio": 0.8,
+      "root_upper": -0.2014264133655972,
+      "multiplier": 1.1719967685052202
+    },
+    {
+      "ratio": 0.85,
+      "root_upper": -0.10738128763125754,
+      "multiplier": 1.1097692785896243
+    }
+  ],
+  "full_cube_interval_diagnostics": [
+    {
+      "linf_radius": 0.0001,
+      "bottom_observer_shift_bound": 0.007008585748473176,
+      "weighted_hessian_interval_spectral_error": 4.62128243766196,
+      "near_cone_transverse_ratio": 0.0,
+      "near_cone_safe_bound": 2.5907428492583247,
+      "near_cone_multiplier": 1901549144.2006152,
+      "individual_hessian_robust_maximum": 193.82209646108976,
+      "far_cone_linf_radius_capacity": 0.0,
+      "combined_root_constant_test_passes": false
+    },
+    {
+      "linf_radius": 0.0005,
+      "bottom_observer_shift_bound": 0.035043845983350086,
+      "weighted_hessian_interval_spectral_error": 31.963985805131188,
+      "near_cone_transverse_ratio": 0.0,
+      "near_cone_safe_bound": 17.526127461008294,
+      "near_cone_multiplier": 8442467112.545117,
+      "individual_hessian_robust_maximum": 432.88257688856993,
+      "far_cone_linf_radius_capacity": 0.0,
+      "combined_root_constant_test_passes": false
+    },
+    {
+      "linf_radius": 0.001,
+      "bottom_observer_shift_bound": 0.07009121441493697,
+      "weighted_hessian_interval_spectral_error": 183.9263483796762,
+      "near_cone_transverse_ratio": 0.0,
+      "near_cone_safe_bound": 163.04163535849898,
+      "near_cone_multiplier": 16987475210.469143,
+      "individual_hessian_robust_maximum": 2204.569153655351,
+      "far_cone_linf_radius_capacity": 0.0,
+      "combined_root_constant_test_passes": false
+    },
+    {
+      "linf_radius": 0.003,
+      "status": "full_cube_interval_failed",
+      "bottom_observer_shift_bound": 0.21035690228127507,
+      "reason": "bottom observer curvature is not strictly positive"
+    }
+  ],
+  "interpretation": "The near-cone ratio uses only the KKT-center weighted Hessian. The far-cone radius uses only KKT-center individual Hessians. A proof must add exact interval variation over the claimed radius."
+}

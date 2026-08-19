@@ -1,0 +1,52 @@
+name: Full N=3 upper-certificate replay
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Extract and hash the certificate
+        run: |
+          echo "31CF762FD9CA678E7FF461AC1643AA12E7A251658A73CECF16AEF98E2C38DCC4  data/certificates/n03_global_upper_7_58.zip" \
+            | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/n03-certificate"
+          unzip -q data/certificates/n03_global_upper_7_58.zip \
+            -d "$RUNNER_TEMP/n03-certificate"
+          echo "6F6F936767A73A548FCAFDD18A4F739AED4AE201B093271009BEC4DEE2E0ACEF  $RUNNER_TEMP/n03-certificate/n03_global_upper_7_58.json" \
+            | sha256sum -c -
+
+      - name: Replay primary verifier
+        run: |
+          python scripts/verify_global_upper_certificate.py \
+            "$RUNNER_TEMP/n03-certificate/n03_global_upper_7_58.json" \
+            | tee "$RUNNER_TEMP/primary-verifier.txt"
+
+      - name: Replay clean-room verifier under optimization
+        run: |
+          python -O scripts/verify_global_upper_certificate_cleanroom.py \
+            "$RUNNER_TEMP/n03-certificate/n03_global_upper_7_58.json" \
+            | tee "$RUNNER_TEMP/cleanroom-verifier.txt"
+
+      - name: Upload verifier transcripts
+        uses: actions/upload-artifact@v7
+        with:
+          name: n03-full-certificate-verifier-transcripts
+          path: |
+            ${{ runner.temp }}/primary-verifier.txt
+            ${{ runner.temp }}/cleanroom-verifier.txt
+          retention-days: 30
