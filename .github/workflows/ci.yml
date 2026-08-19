@@ -62,6 +62,13 @@ jobs:
             --gap 1/10 \
             --output "$RUNNER_TEMP/n03-active-minima.json"
 
+      - name: Replay N=3 strict local optimality
+        run: |
+          python scripts/certify_n3_local_optimality.py \
+            --kkt-certificate "$RUNNER_TEMP/n03-krawczyk.json" \
+            --active-minima-certificate "$RUNNER_TEMP/n03-active-minima.json" \
+            --output "$RUNNER_TEMP/n03-local-optimality.json"
+
       - name: Verify compact global upper certificate twice
         run: |
           python scripts/verify_global_upper_certificate.py \

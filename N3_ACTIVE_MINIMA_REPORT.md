@@ -140,6 +140,7 @@ An independent reviewer should focus on:
 6. whether any claim accidentally upgrades observer-space isolation into
    source-space local optimality.
 
-The next mathematical stage is separate: certify the full six-dimensional
-epigraph KKT regularity and the negative-definite moving-minimum envelope
-Hessian. Until then the local-optimality theorem remains open.
+The subsequent full six-dimensional epigraph and moving-minimum Hessian stage
+is reviewed separately in `N3_LOCAL_OPTIMALITY_REPORT.md`. This A2 artifact
+should still be audited independently because that later theorem depends on
+the five-branch local reduction established here.

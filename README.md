@@ -1,7 +1,7 @@
 # Unit-square Riesz 2-polarization
 
 状态：**阶段 A 已严格超过 7 个公开固定构型；N=3/N=5 另超过 Friedman
-页面显示值；N=3 已有 0.153% 全局夹逼**（2026-08-19）。
+页面显示值；N=3 已证严格局部最优并有 0.153% 全局夹逼**（2026-08-19）。
 
 本项目研究 Erich Friedman 的 [Maximizing Minimum Light Intensity](https://erich-friedman.github.io/packing/light/)：在单位正方形中放置 `N` 个允许重合的单位点源，最大化
 
@@ -124,9 +124,10 @@ P_3\le 7.58.
 相对缺口约 `0.153%`。纯有理 Krawczyk 检验还证明：半径 `1e-40` 的对称
 七维 KKT 盒内存在唯一真根，且三个活跃轨道权重为正。进一步的纯有理导数区间
 与空间覆盖证明：该真根的全局最暗观察点**恰好**是四角和下边中点，五个邻域外
-比根值至少高 `0.1`。这仍**不证明 N=3 全局最优或完整局部最优**；剩余工作是
-全六维五分支 epigraph 条件和移动边极小的区间二阶充分条件，见
-[PROOF_SKELETON.md](./PROOF_SKELETON.md)。
+比根值至少高 `0.1`。最后，完整六维五分支 epigraph 的 LICQ、严格正乘子以及
+移动底边极小的包络 Hessian 二阶充分条件也已由纯有理区间闭合。因此，高精度
+真根在三个**有序**源的完整六维空间中是严格局部最大点。这仍**不证明 N=3
+全局最优**；全局等式风险与下一闸门见 [PROOF_SKELETON.md](./PROOF_SKELETON.md)。
 
 ## 当前结果：N=5
 
@@ -224,6 +225,7 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 - [PROOF_ROI.md](./PROOF_ROI.md)：`N=3` 局部/全局最优证明的价值、风险、工具匹配与早停闸门。
 - [PROOF_SKELETON.md](./PROOF_SKELETON.md)：局部 KKT/包络 Hessian 与全局有限见证证明骨架。
 - [N3_ACTIVE_MINIMA_REPORT.md](./N3_ACTIVE_MINIMA_REPORT.md)：新 A2 证书的独立复核说明、严格声明边界与对抗检查清单。
+- [N3_LOCAL_OPTIMALITY_REPORT.md](./N3_LOCAL_OPTIMALITY_REPORT.md)：完整六维严格局部最优定理、精确区间余量与独立复核路线。
 - [scripts/record_hunt.py](./scripts/record_hunt.py)：GPU 生产者与 CPU 连续域验证并行、可恢复的纪录搜索器。
 - [data/candidates/n03_symmetric.json](./data/candidates/n03_symmetric.json)：冻结坐标、高精度 KKT 与连续域诊断。
 - [data/candidates/n05_hunt_best.json](./data/candidates/n05_hunt_best.json)：首轮严格超过 Friedman 显示值的 `N=5` 构型。
@@ -238,6 +240,8 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 - [data/certificates/n03_symmetric_kkt_krawczyk.json](./data/certificates/n03_symmetric_kkt_krawczyk.json)：对称 KKT 根的纯有理 Krawczyk 包含证书。
 - [data/certificates/n03_active_minima_isolation.json](./data/certificates/n03_active_minima_isolation.json)：证明对称 KKT 根恰有五个全局最暗观察点的纯有理导数与补集覆盖证书。
 - [scripts/certify_n3_active_minima.py](./scripts/certify_n3_active_minima.py)：重放活跃最暗点隔离证书。
+- [data/certificates/n03_strict_local_optimality.json](./data/certificates/n03_strict_local_optimality.json)：LICQ、移动观察点包络 Hessian及二阶充分条件证书。
+- [scripts/certify_n3_local_optimality.py](./scripts/certify_n3_local_optimality.py)：重放完整六维严格局部最优检验。
 - [scripts/verify_global_upper_certificate_cleanroom.py](./scripts/verify_global_upper_certificate_cleanroom.py)：审查后加固的第二套纯标准库全局上界验证器。
 - [data/certificates/n05_spectral_target_22_06.json](./data/certificates/n05_spectral_target_22_06.json)：`N=5` spectral 精确下界证书。
 - [data/certificates/n05_componentwise_target_22_06.json](./data/certificates/n05_componentwise_target_22_06.json)：`N=5` componentwise 精确下界证书。
