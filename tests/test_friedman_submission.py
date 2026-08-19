@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from scripts.build_friedman_submission import build
+from scripts.build_friedman_submission import PROJECT_ROOT, RECORDS, build
 
 
 class FriedmanSubmissionTests(unittest.TestCase):
@@ -34,6 +34,28 @@ class FriedmanSubmissionTests(unittest.TestCase):
                 coordinates = list(csv.DictReader(handle))
             self.assertEqual(len(coordinates), 232)
             self.assertEqual(json.loads((output / "metadata.json").read_text())["record_count"], 9)
+            reply_blocks = []
+            for record in RECORDS:
+                if not 29 <= record.n <= 35:
+                    continue
+                candidate = json.loads(
+                    (PROJECT_ROOT / record.candidate).read_text(encoding="utf-8")
+                )
+                lines = [f"{{{x},{y}}}" for x, y in candidate["coordinates"]]
+                reply_blocks.append(f"n={record.n}\n" + ",\n".join(lines))
+            expected_reply = (
+                "Dear Erich,\n\n"
+                "Certainly. Here are the coordinates for 29 <= n <= 35 in the "
+                "requested format.\n\n"
+                + "\n\n".join(reply_blocks)
+                + "\n\nBest regards,\n[YOUR NAME]\n"
+            )
+            self.assertEqual(
+                (output / "ERICH_COORDINATES_29_35_REPLY.txt").read_text(
+                    encoding="utf-8"
+                ),
+                expected_reply,
+            )
             self.assertTrue((output / "SHA256SUMS.txt").read_text().endswith("\n"))
 
 

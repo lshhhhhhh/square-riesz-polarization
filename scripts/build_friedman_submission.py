@@ -149,6 +149,7 @@ def build(output_dir: Path, project_root: Path = PROJECT_ROOT) -> dict[str, obje
         "componentwise_certificate",
     ]]
     coordinate_rows: list[list[object]] = [["n", "source_index", "x", "y"]]
+    reply_coordinate_blocks: list[str] = []
     manifest_paths: set[Path] = set()
 
     for record in RECORDS:
@@ -204,10 +205,24 @@ def build(output_dir: Path, project_root: Path = PROJECT_ROOT) -> dict[str, obje
             record.spectral,
             record.componentwise,
         ])
+        reply_coordinate_lines: list[str] = []
         for index, point in enumerate(coordinates, start=1):
             if not isinstance(point, list) or len(point) != 2:
                 raise ValueError(f"malformed coordinate N={record.n}, index={index}")
+            if not all(isinstance(value, str) for value in point):
+                raise ValueError(
+                    f"coordinates must be decimal strings N={record.n}, index={index}"
+                )
+            if not all(Fraction(0) <= Fraction(value) <= Fraction(1) for value in point):
+                raise ValueError(
+                    f"coordinate outside the unit square N={record.n}, index={index}"
+                )
             coordinate_rows.append([record.n, index, point[0], point[1]])
+            reply_coordinate_lines.append(f"{{{point[0]},{point[1]}}}")
+        if 29 <= record.n <= 35:
+            reply_coordinate_blocks.append(
+                f"n={record.n}\n" + ",\n".join(reply_coordinate_lines)
+            )
         manifest_paths.update((candidate_path, spectral_path, componentwise_path))
 
     records_path = output_dir / "records.csv"
@@ -215,6 +230,16 @@ def build(output_dir: Path, project_root: Path = PROJECT_ROOT) -> dict[str, obje
     records_path.write_text(_csv_text(records_rows), encoding="utf-8", newline="\n")
     coordinates_path.write_text(
         _csv_text(coordinate_rows), encoding="utf-8", newline="\n"
+    )
+    reply_path = output_dir / "ERICH_COORDINATES_29_35_REPLY.txt"
+    reply_path.write_text(
+        "Dear Erich,\n\n"
+        "Certainly. Here are the coordinates for 29 <= n <= 35 in the "
+        "requested format.\n\n"
+        + "\n\n".join(reply_coordinate_blocks)
+        + "\n\nBest regards,\n[YOUR NAME]\n",
+        encoding="utf-8",
+        newline="\n",
     )
 
     metadata = {
@@ -235,7 +260,7 @@ def build(output_dir: Path, project_root: Path = PROJECT_ROOT) -> dict[str, obje
         json.dumps(metadata, indent=2) + "\n", encoding="utf-8", newline="\n"
     )
 
-    generated_paths = (records_path, coordinates_path, metadata_path)
+    generated_paths = (records_path, coordinates_path, reply_path, metadata_path)
     optional_package_paths = [
         output_dir / "README.md",
         output_dir / "EMAIL_DRAFT.txt",
