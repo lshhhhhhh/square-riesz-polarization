@@ -45,8 +45,16 @@ COORDINATE_NAMES = (
 )
 
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+def _canonical_json_sha256(path: Path) -> str:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    canonical = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest().upper()
 
 
 def _fraction_string(value: object, field: str) -> Q:
@@ -118,8 +126,8 @@ def build_certificate(
     active_kkt_prerequisite = active_minima.get("kkt_prerequisite")
     if type(active_kkt_prerequisite) is not dict:
         raise ValueError("active-minimum prerequisite has no KKT binding")
-    expected_kkt_hash = active_kkt_prerequisite.get("sha256")
-    if expected_kkt_hash != _sha256(kkt_certificate_path):
+    expected_kkt_hash = active_kkt_prerequisite.get("canonical_json_sha256")
+    if expected_kkt_hash != _canonical_json_sha256(kkt_certificate_path):
         raise ValueError("active-minimum prerequisite names a different KKT artifact")
 
     center = kkt.get("center")
@@ -221,11 +229,15 @@ def build_certificate(
         "prerequisites": {
             "kkt": {
                 "path": _display_path(kkt_certificate_path),
-                "sha256": _sha256(kkt_certificate_path),
+                "canonical_json_sha256": _canonical_json_sha256(
+                    kkt_certificate_path
+                ),
             },
             "active_minima": {
                 "path": _display_path(active_minima_certificate_path),
-                "sha256": _sha256(active_minima_certificate_path),
+                "canonical_json_sha256": _canonical_json_sha256(
+                    active_minima_certificate_path
+                ),
             },
         },
         "root_box_radius": str(radius),

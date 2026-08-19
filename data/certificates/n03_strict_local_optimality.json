@@ -6,11 +6,11 @@
   "prerequisites": {
     "kkt": {
       "path": "data/certificates/n03_symmetric_kkt_krawczyk.json",
-      "sha256": "592AE459DCDB909F63BFDE22FD2C30B29DA71393C6FAE855CA41E60E0F11B0C7"
+      "canonical_json_sha256": "5870B33EB6EF94600AD15C21A84C2E03C1BF222A3004FEFAB2171BF2BD5923B9"
     },
     "active_minima": {
       "path": "data/certificates/n03_active_minima_isolation.json",
-      "sha256": "F1E76D4F9A49E91E3094D65B1AD95527BCA6DBCA7AD63FF5F37A15DC7DE3107F"
+      "canonical_json_sha256": "ACCA653A6153F590BD8DE6F0F5F86FDF558B91D87DC76DD899854D894627BB4B"
     }
   },
   "root_box_radius": "1/10000000000000000000000000000000000000000",
@@ -213,6 +213,6 @@
     "The active-minimum certificate makes these five smooth branches an exact local representation of the continuous minimum.",
     "Standard nonlinear-programming second-order sufficiency therefore yields a strict local maximum in ordered source space."
   ],
-  "elapsed_seconds": 6.776890499982983,
+  "elapsed_seconds": 7.080546899989713,
   "scope_warning": "This is a strict local-optimality theorem, not a proof that the configuration is the global maximizer P_3 or that P_3 equals its value."
 }

@@ -5,7 +5,7 @@
   "status": "VERIFIED",
   "kkt_prerequisite": {
     "path": "data/certificates/n03_symmetric_kkt_krawczyk.json",
-    "sha256": "592AE459DCDB909F63BFDE22FD2C30B29DA71393C6FAE855CA41E60E0F11B0C7",
+    "canonical_json_sha256": "5870B33EB6EF94600AD15C21A84C2E03C1BF222A3004FEFAB2171BF2BD5923B9",
     "root_box_radius": "1/10000000000000000000000000000000000000000"
   },
   "source_parameter_center": {
@@ -212,6 +212,6 @@
     "Outside those five rectangles U exceeds the KKT level by at least 1/10.",
     "The KKT equations make the four corner values and bottom-midpoint value exactly equal at the enclosed root."
   ],
-  "elapsed_seconds": 0.05800809996435419,
+  "elapsed_seconds": 0.04969719995278865,
   "scope_warning": "This certifies the observer-space active set and strict isolation at the symmetric KKT root. It is not yet a proof that the root is a local or global maximum over all source configurations."
 }

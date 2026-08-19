@@ -42,8 +42,16 @@ DERIVATIVE_CONDITIONS = {
 }
 
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+def _canonical_json_sha256(path: Path) -> str:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    canonical = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest().upper()
 
 
 def _box_json(box: Box) -> list[str]:
@@ -182,7 +190,7 @@ def build_certificate(
         "status": "VERIFIED",
         "kkt_prerequisite": {
             "path": prerequisite_display_path,
-            "sha256": _sha256(kkt_certificate_path),
+            "canonical_json_sha256": _canonical_json_sha256(kkt_certificate_path),
             "root_box_radius": str(radius),
         },
         "source_parameter_center": {name: center[name] for name in ("a", "b", "c")},
