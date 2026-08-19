@@ -3,18 +3,25 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
-import torch
 
 from square_riesz.potential import intensity
-from square_riesz.torch_engine import (
-    hard_minimum,
-    intensity_block,
-    optimize_population_softmin,
-    soft_minimum,
-    unit_square_grid,
-)
+
+try:
+    import torch
+except ModuleNotFoundError:
+    torch = None
+
+if torch is not None:
+    from square_riesz.torch_engine import (
+        hard_minimum,
+        intensity_block,
+        optimize_population_softmin,
+        soft_minimum,
+        unit_square_grid,
+    )
 
 
+@unittest.skipUnless(torch is not None, "PyTorch is an optional GPU-search dependency")
 class TorchEngineTests(unittest.TestCase):
     def setUp(self) -> None:
         self.configurations = torch.tensor(

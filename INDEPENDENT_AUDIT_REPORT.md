@@ -14,6 +14,11 @@ contain mistakes. It separates theorem-level claims, reproducible computations,
 diagnostics, and conjectures. Finding an error is more useful than confirming the
 authors' expectations.
 
+The first independent review is preserved verbatim in
+`INDEPENDENT_AUDIT_FINDINGS.md`; commit `2ef5eb9` is the immutable pre-remediation
+snapshot of its scripts and outputs. This report incorporates the accepted
+corrections while retaining the review itself as primary audit evidence.
+
 ## 1. Problem and notation
 
 For a literal source configuration
@@ -52,7 +57,7 @@ The claimed fixed-configuration interval is
 
 \[
 7.56838963\le I(X)
-\le 7.56838964002969021461149434458\ldots.
+\le 7.568389640029690214292220397565988\ldots.
 \]
 
 The lower endpoint was accepted by two exact-rational box bounds:
@@ -62,10 +67,13 @@ The lower endpoint was accepted by two exact-rational box bounds:
 | spectral curvature bound | 141 | 32 | `data/certificates/n03_target_7_56838963.json` |
 | componentwise Hessian intervals | 123 | 31 | `data/certificates/n03_componentwise_target_7_56838963.json` |
 
-The upper endpoint is exact evaluation at the rational point `(1/2,0)`. The two
-lower methods have different Taylor remainder bounds, but they share coordinate
-parsing, rational arithmetic, branching logic, and some direct-bound code. They
-are **not** independent implementations in the strong clean-room sense.
+The upper endpoint is exact evaluation at the rational corner `(0,0)`. For the
+published 19-digit literal coordinates, the bottom midpoint is higher by about
+`3.19e-19`; the exact five-way degeneracy belongs to the high-precision KKT root,
+not to its truncated publication coordinates. The two lower methods have
+different Taylor remainder bounds, but they share coordinate parsing, rational
+arithmetic, branching logic, and some direct-bound code. They are **not**
+independent implementations in the strong clean-room sense.
 
 ### 2.2 Global `N=3` bracket
 
@@ -118,20 +126,25 @@ The repository also claims exact lower bounds for literal decimal configurations
 
 | `N` | Comparison reference | New proved lower bound | Exact point-witness upper bound |
 |---:|---:|---:|---:|
+| 3 | Friedman display `7.507+` | 7.56838963 | 7.56838964002969021429... |
 | 5 | Friedman display `21.342+` | 22.06 | 22.06308301603677... |
-| 29 | 272.49597364647275... | 282.8 | 282.85692528612702... |
-| 30 | 285.32674238354997... | 285.34 | 285.34568532988481... |
-| 31 | 294.20889327042522... | 305.2 | 305.29836691152415... |
-| 32 | 304.28079912987812... | 317.1 | 317.20381892782922... |
-| 33 | 311.66564132966665... | 330.5 | 330.59547948010763... |
-| 34 | 323.40992809730865... | 337.8 | 337.90623582303798... |
-| 35 | 329.70896680863521... | 347.1 | 347.19572233129303... |
+| 29 | 272.495973646473 | 282.8 | 282.85692528612702... |
+| 30 | 285.326742383550 | 285.34 | 285.34568532988481... |
+| 31 | 294.208893270426 | 305.2 | 305.29836691152415... |
+| 32 | 304.280799129879 | 317.1 | 317.20381892782922... |
+| 33 | 311.665641329667 | 330.5 | 330.59547948010763... |
+| 34 | 323.409928097309 | 337.8 | 337.90623582303798... |
+| 35 | 329.708966808636 | 347.1 | 347.19572233129303... |
 
 For `N=29..35`, the comparison values are exact point-witness upper bounds for
-the configurations in the pinned public upstream repository, not merely rounded
-values on the Friedman web page. Therefore a proved new lower bound above such a
-witness proves that the new literal configuration beats that previous literal
-configuration. It does not prove a global optimum.
+the configurations in the pinned public upstream repository, conservatively
+rounded upward at `1e-12`, not merely rounded values on the Friedman web page.
+The exact fractions are pinned in the result CSV and candidate records. Therefore
+a proved new lower bound above such a witness proves that the new literal
+configuration beats that previous literal configuration. The `N=3` and `N=5`
+rows only exceed Friedman display values; without the old literal coordinates and
+an exact upper witness, they are not stated as strict defeats of the unrounded old
+configurations. None of these statements proves a global optimum.
 
 ## 3. Explicit non-claims
 
@@ -170,12 +183,15 @@ git clone --recurse-submodules --branch agent/independent-audit-report \
 cd square-riesz-polarization
 python -m venv .venv
 # Activate the environment using the platform-specific command.
-python -m pip install -r requirements.txt
+python -m pip install -r requirements-audit.txt
 python -m unittest discover -s tests -v
 ```
 
-Expected result at publication: 23 tests pass. A reviewer should record the
-platform, Python implementation, dependency versions, wall times, and any warning.
+Expected CPU-only result at publication: 22 tests pass and 4 PyTorch search tests
+are explicitly skipped. To reproduce the GPU search environment, install
+`requirements-search.txt`; with PyTorch available, all 26 tests pass. A reviewer
+should record the platform, Python implementation, dependency versions, wall
+times, skips, and any warning.
 
 ## 5. Highest-priority standalone audit: global `P_3 <= 7.58`
 
@@ -229,7 +245,11 @@ The verifier should be read before it is run. In particular, independently check
 6. Metadata such as generator status, reports, and split schedule is not trusted.
 
 A particularly valuable audit would reimplement this verifier from the JSON
-schema without copying its code.
+schema without copying its code. The first audit did so; its original verifier is
+preserved at commit `2ef5eb9`. The current
+`scripts/verify_global_upper_certificate_cleanroom.py` hardens that implementation
+by removing optimization-sensitive `assert` checks and comparing leaf bounds by
+exact integer cross-multiplication rather than binary floating point.
 
 ## 6. Fixed-configuration lower replay
 
@@ -245,7 +265,7 @@ mkdir -p audit-output
 python scripts/certify_candidate.py \
   --input data/candidates/n03_symmetric.json \
   --target 7.56838963 \
-  --witness-x 0.5 --witness-y 0 \
+  --witness-x 0 --witness-y 0 \
   --method spectral --max-splits 2000000 \
   --output audit-output/n03-spectral.json
 ```
@@ -256,7 +276,7 @@ Componentwise replay:
 python scripts/certify_candidate.py \
   --input data/candidates/n03_symmetric.json \
   --target 7.56838963 \
-  --witness-x 0.5 --witness-y 0 \
+  --witness-x 0 --witness-y 0 \
   --method componentwise --max-splits 2000000 \
   --output audit-output/n03-componentwise.json
 ```
@@ -307,6 +327,15 @@ generation with CPU continuous minimization, atomically persists jobs, and keeps
 the historical best hard-minimum member so later soft-minimum steps cannot erase
 a strong incumbent.
 
+The large-`N` runs used `initialization=incumbent-jitter`, `jitter=0.001`, and the
+literal coordinates from the pinned upstream submodule. They are local refinement
+runs, not independent rediscoveries from random starts; accepted candidates can
+nevertheless move individual sources by roughly `0.09`. The upstream field
+`minimum_source_separation` is documented as measured metadata, not an optimizer
+constraint or a proof assumption. Near-coincident sources in some older
+incumbents remain a useful structural diagnostic, but do not justify a claim that
+this project removed a hidden separation constraint.
+
 The formal large-`N` batch is in:
 
 ```text
@@ -355,8 +384,8 @@ Highest value tests, in approximate order:
    Hessian interval formula and sign.
 5. Replay the `N=3` lower certificate on a non-CPython implementation or with a
    separate exact-rational library.
-6. Recompute the exact `(1/2,0)` witness value directly from the three published
-   decimal sources.
+6. Recompute the exact corner `(0,0)` and bottom-midpoint `(1/2,0)` values directly
+   from the three published decimal sources and confirm their tiny ordering.
 7. Verify that source-containing boxes never use a Taylor bound across a
    singularity.
 8. Check permutation reduction for roots containing repeated initial cells.

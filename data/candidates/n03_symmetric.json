@@ -29,6 +29,15 @@
     ],
     "maximum_absolute_kkt_residual": "1.714481086923412473323675322458011439177864992234197991822688764841448953860107293513172032790258044e-100"
   },
+  "literal_decimal_exact_diagnostic": {
+    "upper_witness": [
+      "0",
+      "0"
+    ],
+    "upper_value_decimal_prefix": "7.56838964002969021429222039756598878075564185488549",
+    "bottom_midpoint_minus_corner_decimal": "3.1927394701699425e-19",
+    "interpretation": "for the frozen 19-digit literal coordinates the corner is slightly darker; five-way degeneracy belongs to the high-precision KKT root"
+  },
   "continuous_evaluation": {
     "source_count": 3,
     "minimum": 7.5683896400296895,
@@ -239,5 +248,5 @@
     "maximum_absolute_source_gradient": 4.440892098500626e-16,
     "interpretation": "zero weighted gradients establish first-order stationarity; the continuous objective's second-order test also requires the moving edge minimum's Schur-complement correction"
   },
-  "rigor": "numerical_candidate_only_until_exact_certificate_is_run"
+  "rigor": "fixed_literal_decimal_configuration_certified_below_7.56838963"
 }

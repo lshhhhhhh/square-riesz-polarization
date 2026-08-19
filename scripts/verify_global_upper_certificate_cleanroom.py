@@ -1,169 +1,279 @@
-"""Clean-room re-implementation of the N=3 global upper certificate verifier.
+"""Clean-room verifier for the N=3 finite-witness global upper tree.
 
-Written from the JSON schema only.  Deliberately different from the repository
-verifier in: exact arithmetic representation (scaled integers, not Fraction),
-coverage proof (Kraft equality + prefix-freeness via a trie, not recursion),
-and root-cell / witness indexing derived from first principles.
+This implementation was contributed by an independent audit and then hardened
+without changing its proof strategy. It deliberately avoids
+``fractions.Fraction`` and the repository verifier's recursive coverage check:
+all arithmetic uses integer numerator/denominator pairs, while coverage uses
+prefix-freeness plus exact Kraft equality.
 
-Soundness argument being checked:
-  I(a1,a2,a3) = min_{x in [0,1]^2} sum_i |x-a_i|^{-2}
-  For a configuration box B = (B1,B2,B3) and any witness w in [0,1]^2 with
-  w outside every B_i,
-      I(X) <= sum_i |w-a_i|^{-2} <= sum_i dist(w,B_i)^{-2} =: U(w,B).
-  If the B's cover ([0,1]^2)^3 modulo source permutation and every U(w,B) <= T,
-  then P_3 = max_X I(X) <= T.
+Unlike the original audit snapshot preserved in commit ``2ef5eb9``, this
+version remains sound under ``python -O`` and selects the maximum leaf bound by
+integer cross multiplication rather than a float comparison.
 """
-import json, sys
+
+from __future__ import annotations
+
+import argparse
+from decimal import Decimal, localcontext
 from itertools import combinations_with_replacement
+import json
+from math import gcd
+from pathlib import Path
+import re
+from typing import Any
 
-CERT = sys.argv[1]
 
-with open(CERT, "r", encoding="utf-8") as fh:
-    d = json.load(fh)
+DECIMAL = re.compile(r"(?:0|[1-9][0-9]*)(?:\.[0-9]+)?\Z")
+Pair = tuple[int, int]
+AxisBox = list[int]
+SourceBox = list[AxisBox]
 
-assert isinstance(d, dict)
-assert d["n"] == 3, "not an N=3 certificate"
-DIV = d["initial_divisions"]
-GRID = d["witness_grid"]
-assert type(DIV) is int and type(GRID) is int and DIV >= 1 and GRID >= 2
-tgt_str = d["target"]
-assert type(tgt_str) is str
-# exact target as a fraction of integers, parsed by hand
-if "." in tgt_str:
-    ip, fp = tgt_str.split(".")
-    assert ip.isdigit() and fp.isdigit()
-    T_NUM, T_DEN = int(ip + fp), 10 ** len(fp)
-else:
-    assert tgt_str.isdigit()
-    T_NUM, T_DEN = int(tgt_str), 1
-assert T_NUM > 0
-print(f"target parsed as {T_NUM}/{T_DEN}")
 
-leaves = d["leaves"]
-assert type(leaves) is list
+def _require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
 
-EXPECTED_ROOTS = set(combinations_with_replacement(range(DIV * DIV), 3))
-print(f"expected roots C({DIV*DIV}+2,3) = {len(EXPECTED_ROOTS)}")
 
-# ---------------------------------------------------------------- geometry
-# Everything is dyadic.  Represent a 1-D box [lo/2^s, hi/2^s] with integers,
-# using scale s relative to the unit square.  Root cells have s = log2(DIV)
-# only when DIV is a power of two, so instead keep an explicit denominator.
+def _object_without_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
 
-def root_boxes(root):
-    """Return per-source [(xlo,xhi,den),(ylo,yhi,den)] as integers over DIV."""
-    out = []
+
+def _reject_nonfinite_json(value: str) -> None:
+    raise ValueError(f"non-finite JSON constant: {value}")
+
+
+def _load_strict_json(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        payload = json.load(
+            handle,
+            object_pairs_hook=_object_without_duplicates,
+            parse_constant=_reject_nonfinite_json,
+        )
+    _require(type(payload) is dict, "certificate root must be a JSON object")
+    return payload
+
+
+def _strict_int(value: object, name: str) -> int:
+    _require(type(value) is int, f"{name} must be a JSON integer")
+    return value  # type: ignore[return-value]
+
+
+def _parse_target(value: object) -> Pair:
+    _require(
+        type(value) is str and DECIMAL.fullmatch(value) is not None,
+        "target must be a canonical nonnegative decimal string",
+    )
+    text = value  # type: ignore[assignment]
+    if "." in text:
+        integer, fractional = text.split(".")
+        numerator = int(integer + fractional)
+        denominator = 10 ** len(fractional)
+    else:
+        numerator, denominator = int(text), 1
+    _require(numerator > 0, "target must be positive")
+    common = gcd(numerator, denominator)
+    return numerator // common, denominator // common
+
+
+def _root_boxes(root: tuple[int, int, int], divisions: int) -> list[SourceBox]:
+    boxes: list[SourceBox] = []
     for cell in root:
-        assert 0 <= cell < DIV * DIV
-        ix, iy = cell % DIV, cell // DIV
-        out.append([[ix, ix + 1, DIV], [iy, iy + 1, DIV]])
-    return out
+        _require(0 <= cell < divisions * divisions, "root cell outside grid")
+        x_index, y_index = cell % divisions, cell // divisions
+        boxes.append(
+            [
+                [x_index, x_index + 1, divisions],
+                [y_index, y_index + 1, divisions],
+            ]
+        )
+    return boxes
 
-def apply_path(root, path):
-    b = root_boxes(root)
-    for depth, ch in enumerate(path):
-        c = depth % 6
-        s, ax = c // 2, c % 2
-        lo, hi, den = b[s][ax]
-        lo, hi, den = 2 * lo, 2 * hi, 2 * den          # refine denominator
-        mid = (lo + hi) // 2
-        assert (lo + hi) % 2 == 0
-        if ch == "0":
-            hi = mid
-        elif ch == "1":
-            lo = mid
+
+def _apply_path(
+    root: tuple[int, int, int], path: str, divisions: int
+) -> list[SourceBox]:
+    boxes = _root_boxes(root, divisions)
+    for depth, bit in enumerate(path):
+        coordinate = depth % 6
+        source, axis = divmod(coordinate, 2)
+        lower, upper, denominator = boxes[source][axis]
+        lower, upper, denominator = (
+            2 * lower,
+            2 * upper,
+            2 * denominator,
+        )
+        _require((lower + upper) % 2 == 0, "nonintegral dyadic midpoint")
+        midpoint = (lower + upper) // 2
+        if bit == "0":
+            upper = midpoint
+        elif bit == "1":
+            lower = midpoint
         else:
-            raise AssertionError("bad path character")
-        b[s][ax] = [lo, hi, den]
-    return b
+            raise ValueError("path contains a character other than 0 or 1")
+        boxes[source][axis] = [lower, upper, denominator]
+    return boxes
 
-def dist1d_num(p_num, p_den, lo, hi, den):
-    """Exact 1-D distance from p to [lo/den, hi/den] as (num, den) over p_den*den."""
-    # common denominator p_den*den
-    P = p_num * den
-    L, H = lo * p_den, hi * p_den
-    if P < L:
-        return L - P
-    if P > H:
-        return P - H
+
+def _distance_numerator(
+    point_numerator: int,
+    point_denominator: int,
+    lower: int,
+    upper: int,
+    box_denominator: int,
+) -> int:
+    """Distance numerator over ``point_denominator * box_denominator``."""
+
+    point = point_numerator * box_denominator
+    scaled_lower = lower * point_denominator
+    scaled_upper = upper * point_denominator
+    if point < scaled_lower:
+        return scaled_lower - point
+    if point > scaled_upper:
+        return point - scaled_upper
     return 0
 
-def leaf_ok(root, path, witness):
-    """Return True iff U(w,B) <= target, exactly."""
-    assert type(witness) is int and 0 <= witness < GRID * GRID
-    wden = GRID - 1
-    wx, wy = witness % GRID, witness // GRID          # both in [0, GRID-1]
-    b = apply_path(root, path)
-    # accumulate sum_i 1/d_i^2 as an exact fraction, integer numerator/denominator
-    num, den = 0, 1
-    for (xlo, xhi, xden), (ylo, yhi, yden) in b:
-        # scale both axes to a common denominator with the witness
-        dx = dist1d_num(wx, wden, xlo, xhi, xden)      # over wden*xden
-        dy = dist1d_num(wy, wden, ylo, yhi, yden)      # over wden*yden
-        # d^2 = (dx/(wden*xden))^2 + (dy/(wden*yden))^2
-        ax, ay = wden * xden, wden * yden
-        n2 = dx * dx * ay * ay + dy * dy * ax * ax
-        d2 = (ax * ay) ** 2
-        if n2 == 0:
-            return False, None                          # witness touches a box
-        num, den = num * n2 + den * d2, den * n2        # += d2/n2
-    return (num * T_DEN <= T_NUM * den), (num, den)
 
-# ---------------------------------------------------------------- main loop
-by_root = {}
-best = (0, 1)
-best_f = -1.0
-for i, leaf in enumerate(leaves):
-    assert type(leaf) is dict
-    r = leaf["root"]
-    assert type(r) is list and len(r) == 3
-    assert all(type(v) is int for v in r)
-    root = tuple(r)
-    assert root in EXPECTED_ROOTS, f"root {root} not a canonical multiset"
-    path = leaf["path"]
-    assert type(path) is str
-    w = leaf["witness"]
-    ok, val = leaf_ok(root, path, w)
-    if not ok:
-        raise SystemExit(f"LEAF {i} FAILS: root={root} path={path!r} witness={w} value={val}")
-    f = val[0] / val[1]
-    if f > best_f:
-        best_f, best = f, val
-    slot = by_root.setdefault(root, set())
-    assert path not in slot, f"duplicate leaf path in root {root}"
-    slot.add(path)
-    if (i + 1) % 200000 == 0:
-        print(f"  {i+1} leaves checked")
+def _leaf_bound(
+    root: tuple[int, int, int],
+    path: str,
+    witness: int,
+    divisions: int,
+    grid_size: int,
+) -> Pair | None:
+    _require(0 <= witness < grid_size * grid_size, "witness index outside grid")
+    witness_denominator = grid_size - 1
+    witness_x = witness % grid_size
+    witness_y = witness // grid_size
+    boxes = _apply_path(root, path, divisions)
 
-assert set(by_root) == EXPECTED_ROOTS, "root set mismatch"
+    total_numerator, total_denominator = 0, 1
+    for (x0, x1, x_denominator), (y0, y1, y_denominator) in boxes:
+        dx = _distance_numerator(
+            witness_x, witness_denominator, x0, x1, x_denominator
+        )
+        dy = _distance_numerator(
+            witness_y, witness_denominator, y0, y1, y_denominator
+        )
+        x_scale = witness_denominator * x_denominator
+        y_scale = witness_denominator * y_denominator
+        distance_numerator = (
+            dx * dx * y_scale * y_scale + dy * dy * x_scale * x_scale
+        )
+        distance_denominator = (x_scale * y_scale) ** 2
+        if distance_numerator == 0:
+            return None
+        total_numerator = (
+            total_numerator * distance_numerator
+            + total_denominator * distance_denominator
+        )
+        total_denominator *= distance_numerator
+    return total_numerator, total_denominator
 
-# coverage: prefix-free + Kraft sum exactly 1  <=>  complete binary cover
-for root, paths in by_root.items():
-    L = max(map(len, paths))
-    kraft = sum(1 << (L - len(p)) for p in paths)
-    if kraft != (1 << L):
-        raise SystemExit(f"root {root}: Kraft sum {kraft} != {1<<L} (incomplete or overlapping cover)")
-    # prefix-freeness via trie insertion
-    trie = {}
-    for p in sorted(paths, key=len):
+
+def _verify_prefix_cover(root: tuple[int, int, int], paths: set[str]) -> None:
+    _require(bool(paths), f"root {root} has no leaves")
+    maximum_length = max(map(len, paths))
+    kraft_numerator = sum(1 << (maximum_length - len(path)) for path in paths)
+    _require(
+        kraft_numerator == 1 << maximum_length,
+        f"root {root} fails exact Kraft equality",
+    )
+
+    trie: dict[str, Any] = {}
+    for path in sorted(paths, key=len):
         node = trie
-        for ch in p:
-            assert "$" not in node, f"root {root}: path {p} extends a leaf"
-            node = node.setdefault(ch, {})
-        assert not node, f"root {root}: path {p} is a prefix of another leaf"
+        for bit in path:
+            _require("$" not in node, f"root {root}: path extends an existing leaf")
+            node = node.setdefault(bit, {})
+        _require(not node, f"root {root}: path is a prefix of another leaf")
         node["$"] = True
 
-assert len(leaves) == d["leaf_count"], "leaf_count metadata mismatch"
 
-from decimal import Decimal, localcontext
-with localcontext() as c:
-    c.prec = 40
-    dv = Decimal(best[0]) / Decimal(best[1])
-print(json.dumps({
-    "status": "VERIFIED (clean-room)",
-    "target": f"{T_NUM}/{T_DEN}",
-    "root_count": len(EXPECTED_ROOTS),
-    "leaf_count": len(leaves),
-    "max_leaf_bound_exact": f"{best[0]}/{best[1]}",
-    "max_leaf_bound_decimal": str(dv),
-}, indent=2))
+def _greater(left: Pair, right: Pair) -> bool:
+    return left[0] * right[1] > right[0] * left[1]
+
+
+def _reduced(value: Pair) -> Pair:
+    common = gcd(value[0], value[1])
+    return value[0] // common, value[1] // common
+
+
+def verify(path: Path) -> dict[str, object]:
+    payload = _load_strict_json(path)
+    _require(_strict_int(payload.get("n"), "n") == 3, "certificate is not for N=3")
+    divisions = _strict_int(payload.get("initial_divisions"), "initial_divisions")
+    grid_size = _strict_int(payload.get("witness_grid"), "witness_grid")
+    _require(divisions >= 1, "initial_divisions must be positive")
+    _require(grid_size >= 2, "witness_grid must be at least two")
+    target = _parse_target(payload.get("target"))
+
+    leaves = payload.get("leaves")
+    _require(type(leaves) is list, "leaves must be a JSON array")
+    expected_roots = set(
+        combinations_with_replacement(range(divisions * divisions), 3)
+    )
+    by_root: dict[tuple[int, int, int], set[str]] = {}
+    maximum_bound: Pair | None = None
+
+    for index, leaf in enumerate(leaves):
+        _require(type(leaf) is dict, f"leaf {index} must be a JSON object")
+        root_values = leaf.get("root")
+        _require(
+            type(root_values) is list and len(root_values) == 3,
+            f"leaf {index} root must contain three integers",
+        )
+        root = tuple(
+            _strict_int(value, f"leaf {index} root cell") for value in root_values
+        )
+        _require(root in expected_roots, f"leaf {index} has a noncanonical root")
+        path_bits = leaf.get("path")
+        _require(type(path_bits) is str, f"leaf {index} path must be a string")
+        witness = _strict_int(leaf.get("witness"), f"leaf {index} witness")
+        bound = _leaf_bound(root, path_bits, witness, divisions, grid_size)
+        _require(bound is not None, f"leaf {index} witness intersects a source box")
+        _require(
+            bound[0] * target[1] <= target[0] * bound[1],
+            f"leaf {index} bound exceeds target",
+        )
+        if maximum_bound is None or _greater(bound, maximum_bound):
+            maximum_bound = bound
+
+        root_paths = by_root.setdefault(root, set())
+        _require(path_bits not in root_paths, f"leaf {index} duplicates a path")
+        root_paths.add(path_bits)
+
+    _require(set(by_root) == expected_roots, "certificate omits an initial root")
+    for root, paths in by_root.items():
+        _verify_prefix_cover(root, paths)
+
+    declared_leaf_count = _strict_int(payload.get("leaf_count"), "leaf_count")
+    _require(len(leaves) == declared_leaf_count, "leaf_count metadata mismatch")
+    _require(maximum_bound is not None, "certificate contains no leaves")
+    maximum_bound = _reduced(maximum_bound)
+    with localcontext() as context:
+        context.prec = 40
+        decimal = str(Decimal(maximum_bound[0]) / Decimal(maximum_bound[1]))
+    return {
+        "status": "VERIFIED (clean-room)",
+        "target": f"{target[0]}/{target[1]}",
+        "root_count": len(expected_roots),
+        "leaf_count": len(leaves),
+        "maximum_leaf_bound_exact": f"{maximum_bound[0]}/{maximum_bound[1]}",
+        "maximum_leaf_bound_decimal": decimal,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("certificate", type=Path)
+    args = parser.parse_args()
+    print(json.dumps(verify(args.certificate), indent=2))
+
+
+if __name__ == "__main__":
+    main()

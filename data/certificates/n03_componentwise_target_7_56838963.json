@@ -37,9 +37,9 @@
   "upper_witness": {
     "point": [
       {
-        "numerator": "1",
-        "denominator": "2",
-        "decimal": "0.5"
+        "numerator": "0",
+        "denominator": "1",
+        "decimal": "0"
       },
       {
         "numerator": "0",
@@ -48,12 +48,12 @@
       }
     ],
     "value": {
-      "numerator": "44559331570923609147610351027652394049000000000000000000000000000000000000",
-      "denominator": "5887557814841679622159374035130941071237930522700308818242565661485743481",
-      "decimal": "7.568389640029690214611494344582983031049020331907531514579795289153961"
+      "numerator": "35585562498427816956540538379495598048241588665270426886324406641394617033000000000000000000000000000000000000",
+      "denominator": "4701867133030986168120607021048705760176454709318554811407036607449895001917756525799451736676544929092374977",
+      "decimal": "7.568389640029690214292220397565988780755641854885498678336657752819080"
     }
   },
-  "elapsed_seconds": 0.09052490000613034,
+  "elapsed_seconds": 0.10857739998027682,
   "claim_scope": "fixed_literal_decimal_configuration_only",
-  "implementation_origin": "generic adaptation of Satoshi Kishimoto et al. BSD-3-Clause spectral exact-rational certifier"
+  "implementation_origin": "generic adaptation of the two Satoshi Kishimoto et al. BSD-3-Clause exact-rational certifiers"
 }

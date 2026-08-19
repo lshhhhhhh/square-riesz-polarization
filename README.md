@@ -1,6 +1,7 @@
 # Unit-square Riesz 2-polarization
 
-状态：**阶段 A 已得到九个严格改进；N=3 已有 0.153% 全局夹逼**（2026-08-19）。
+状态：**阶段 A 已严格超过 7 个公开固定构型；N=3/N=5 另超过 Friedman
+页面显示值；N=3 已有 0.153% 全局夹逼**（2026-08-19）。
 
 本项目研究 Erich Friedman 的 [Maximizing Minimum Light Intensity](https://erich-friedman.github.io/packing/light/)：在单位正方形中放置 `N` 个允许重合的单位点源，最大化
 
@@ -92,16 +93,18 @@ RTX 5090 批量 soft-min 搜索先找到非对称候选；反射对称精炼与 
 
 \[
 7.56838963\le I(X)\le
-7.56838964002969021461149434458\ldots,
+7.568389640029690214292220397565988\ldots,
 \]
 
-其中上界是在下边中点 `(1/2,0)` 精确求值得到。Friedman 当前显示值为
-`7.507+`，故这是对当前公开榜值的严格改进，而不是浮点打分改进。
+其中上界是在角点 `(0,0)` 对冻结的字面小数坐标精确求值得到。Friedman 当前
+显示值为 `7.507+`，所以新下界严格超过网页显示数；由于网页没有给出旧构型的
+完整坐标和严格上界，这里不把它表述成对旧未舍入构型的严格胜出。
 
 - spectral Hessian 证书：141 次分割，最大深度 32；
 - componentwise Hessian 区间证书：123 次分割，最大深度 31；
 - 两种通用验证器分别精确复现上游 `N=7` 的 499/489 次分割；
-- 数值连续评估只找到五个等高活跃最暗点：四角和下边中点；
+- 高精度 KKT 根有四角和下边中点五个等高活跃最暗点；冻结到 19 位小数后，
+  角点 `(0,0)` 比下边中点低约 `3.19e-19`，这不影响已证明的下界；
 - 完整六维 KKT 梯度残差约 `4.5e-16`；考虑下边最暗点移动后的临界
   二阶特征值约为 `-20.90`、`-1.63`，支持严格局部最优猜想。
 
@@ -132,8 +135,8 @@ P_3\le 7.58.
 I(X)\ge22.06>21.342,
 \]
 
-故它也是对 Friedman 当前显示值的严格改进。该构型尚未做针对性精炼，不能据此
-推断 `P_5` 接近 `22.06308`。
+所以新下界严格超过 Friedman 当前显示数。旧网页同样没有提供足以证明未舍入旧
+构型上界的资料；该构型尚未做针对性精炼，不能据此推断 `P_5` 接近 `22.06308`。
 
 ## 当前结果：N=29..35
 
@@ -143,15 +146,15 @@ I(X)\ge22.06>21.342,
 中每个既有有限小数构型的**严格上界见证**。这样，新构型的严格下界一旦超过它，
 就必然胜过既有构型，而不是利用不同证书精度或网页更新延迟。
 
-| `N` | 既有构型严格上界 | 新的严格下界 | 新构型点值上界 |
+| `N` | 既有构型严格上界（向上舍入至 `1e-12`） | 新的严格下界 | 新构型点值上界 |
 |---:|---:|---:|---:|
-| 29 | 272.4959736465 | **282.8** | 282.8569252862 |
-| 30 | 285.3267423836 | **285.34** | 285.3456853299 |
-| 31 | 294.2088932705 | **305.2** | 305.2983669116 |
-| 32 | 304.2807991299 | **317.1** | 317.2038189279 |
-| 33 | 311.6656413297 | **330.5** | 330.5954794802 |
-| 34 | 323.4099280974 | **337.8** | 337.9062358231 |
-| 35 | 329.7089668087 | **347.1** | 347.1957223313 |
+| 29 | 272.495973646473 | **282.8** | 282.8569252862 |
+| 30 | 285.326742383550 | **285.34** | 285.3456853299 |
+| 31 | 294.208893270426 | **305.2** | 305.2983669116 |
+| 32 | 304.280799129879 | **317.1** | 317.2038189279 |
+| 33 | 311.665641329667 | **330.5** | 330.5954794802 |
+| 34 | 323.409928097309 | **337.8** | 337.9062358231 |
+| 35 | 329.708966808636 | **347.1** | 347.1957223313 |
 
 每个下界都对冻结的字面小数坐标分别通过 spectral 和 componentwise 两套精确
 有理 full-square branch-and-bound。表中最后一列是在一个字面小数最暗点精确求值，
@@ -162,7 +165,10 @@ I(X)\ge22.06>21.342,
 它做小扰动 soft-min 优化很容易同时修正大量暗区；旧公开项目发布了严格构型和
 验证器，却没有发布候选搜索代码、种子或完整轨迹。`N=30` 只严格提高约
 `0.01326`，也说明大幅跃升不是随 `N` 自动发生；更像是若干旧构型落入较差盆地，
-而我们补上了搜索层。这些 `N` 因而也是研究有限尺寸和边界层的更好数据，而不只是榜单分数。
+而我们补上了搜索层。旧数据中的近重合点与较差分数相关，但上游文档明确说明
+`minimum_source_separation` 只是测得的描述字段，不是优化约束；因此当前证据支持
+“盆地/搜索质量”假说，不支持“移除了最小间距约束”的说法。这些 `N` 因而也是
+研究有限尺寸和边界层的更好数据，而不只是榜单分数。
 
 ### 阶段 B：从数据提取数学
 
@@ -208,6 +214,7 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 ## 文件
 
 - [INDEPENDENT_AUDIT_REPORT.md](./INDEPENDENT_AUDIT_REPORT.md)：面向独立 AI/人工复核者的声明边界、干净克隆复现命令、证书哈希与对抗测试清单。
+- [INDEPENDENT_AUDIT_FINDINGS.md](./INDEPENDENT_AUDIT_FINDINGS.md)：独立 AI 的原始审查结果；提交 `2ef5eb9` 保留了审查时的逐字快照。
 - [LITERATURE_MAP.md](./LITERATURE_MAP.md)：数学、优化、物理和工程的文献地图及迁移边界。
 - [MODEL_AND_ROADMAP.md](./MODEL_AND_ROADMAP.md)：GPU 求解器、严格验证与研究数据路线。
 - [RESEARCH_LOG.md](./RESEARCH_LOG.md)：检索过程、直接命中、负面结果和后续待查项。
@@ -215,7 +222,7 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 - [PROOF_SKELETON.md](./PROOF_SKELETON.md)：局部 KKT/包络 Hessian 与全局有限见证证明骨架。
 - [scripts/record_hunt.py](./scripts/record_hunt.py)：GPU 生产者与 CPU 连续域验证并行、可恢复的纪录搜索器。
 - [data/candidates/n03_symmetric.json](./data/candidates/n03_symmetric.json)：冻结坐标、高精度 KKT 与连续域诊断。
-- [data/candidates/n05_hunt_best.json](./data/candidates/n05_hunt_best.json)：首轮 `N=5` 严格改进构型。
+- [data/candidates/n05_hunt_best.json](./data/candidates/n05_hunt_best.json)：首轮严格超过 Friedman 显示值的 `N=5` 构型。
 - [runs/record_hunt_large_20260819/summary.json](./runs/record_hunt_large_20260819/summary.json)：高 `N` 首批正式扫描的种子、连续域复核与基线比较。
 - [runs/record_hunt_n30_20260819/summary.json](./runs/record_hunt_n30_20260819/summary.json)：同参数 `N=30` 补充扫描，防止只汇报大幅成功项。
 - [data/candidates](./data/candidates)：`N=29..35` 的冻结字面小数构型。
@@ -225,9 +232,12 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 - [data/certificates/n03_global_upper_7_58.zip](./data/certificates/n03_global_upper_7_58.zip)：全六维源空间的精确有限见证上界树分发包；解压为 `n03_global_upper_7_58.json` 后 SHA-256 为 `6F6F936767A73A548FCAFDD18A4F739AED4AE201B093271009BEC4DEE2E0ACEF`。原始 JSON 约 95.9 MiB，不重复纳入 Git。
 - [data/certificates/SHA256SUMS](./data/certificates/SHA256SUMS)：压缩包与解压后原始证书的校验值。
 - [data/certificates/n03_symmetric_kkt_krawczyk.json](./data/certificates/n03_symmetric_kkt_krawczyk.json)：对称 KKT 根的纯有理 Krawczyk 包含证书。
+- [scripts/verify_global_upper_certificate_cleanroom.py](./scripts/verify_global_upper_certificate_cleanroom.py)：审查后加固的第二套纯标准库全局上界验证器。
 - [data/certificates/n05_spectral_target_22_06.json](./data/certificates/n05_spectral_target_22_06.json)：`N=5` spectral 精确下界证书。
 - [data/certificates/n05_componentwise_target_22_06.json](./data/certificates/n05_componentwise_target_22_06.json)：`N=5` componentwise 精确下界证书。
-- [requirements.txt](./requirements.txt)：本次已验证 Python 环境的核心依赖版本。
+- [requirements-audit.txt](./requirements-audit.txt)：CPU 精确复核与 CI 所需依赖，不含 PyTorch。
+- [requirements-search.txt](./requirements-search.txt)：GPU 搜索依赖，包含 PyTorch。
+- [requirements.txt](./requirements.txt)：兼容入口，等价于搜索环境。
 
 ## 当前硬件/环境
 

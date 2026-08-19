@@ -1,0 +1,68 @@
+name: CPU audit checks
+
+on:
+  push:
+    branches:
+      - main
+      - "agent/**"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out pinned sources
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-audit.txt
+
+      - name: Install CPU audit dependencies
+        run: python -m pip install -r requirements-audit.txt
+
+      - name: Run unit and exact-replay tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Replay N=3 fixed-configuration certificates
+        run: |
+          python scripts/certify_candidate.py \
+            --input data/candidates/n03_symmetric.json \
+            --target 7.56838963 --witness-x 0 --witness-y 0 \
+            --method spectral --max-splits 2000000 \
+            --output "$RUNNER_TEMP/n03-spectral.json"
+          python scripts/certify_candidate.py \
+            --input data/candidates/n03_symmetric.json \
+            --target 7.56838963 --witness-x 0 --witness-y 0 \
+            --method componentwise --max-splits 2000000 \
+            --output "$RUNNER_TEMP/n03-componentwise.json"
+
+      - name: Replay N=3 Krawczyk inclusion
+        run: |
+          python scripts/certify_n3_symmetric_kkt.py \
+            --candidate data/candidates/n03_symmetric.json \
+            --radius 1e-40 \
+            --output "$RUNNER_TEMP/n03-krawczyk.json"
+
+      - name: Verify compact global upper certificate twice
+        run: |
+          python scripts/verify_global_upper_certificate.py \
+            data/certificates/n03_global_upper_7_7.json
+          python -O scripts/verify_global_upper_certificate_cleanroom.py \
+            data/certificates/n03_global_upper_7_7.json
+
+      - name: Check full-certificate archive hash
+        run: |
+          echo "31CF762FD9CA678E7FF461AC1643AA12E7A251658A73CECF16AEF98E2C38DCC4  data/certificates/n03_global_upper_7_58.zip" \
+            | sha256sum -c -

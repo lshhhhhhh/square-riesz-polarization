@@ -161,7 +161,7 @@
       "decimal": "285.3456853298848060316498151474123710781545056300627265814116213010719"
     }
   },
-  "elapsed_seconds": 54.974535799992736,
+  "elapsed_seconds": 62.25904170004651,
   "claim_scope": "fixed_literal_decimal_configuration_only",
   "implementation_origin": "generic adaptation of the two Satoshi Kishimoto et al. BSD-3-Clause exact-rational certifiers"
 }
