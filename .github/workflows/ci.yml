@@ -69,6 +69,11 @@ jobs:
             --active-minima-certificate "$RUNNER_TEMP/n03-active-minima.json" \
             --output "$RUNNER_TEMP/n03-local-optimality.json"
 
+      - name: Audit N=3 quantitative direction cover and replay a leaf sample
+        run: |
+          python scripts/verify_n3_directional_local_cap.py \
+            --limit 20 --workers 2
+
       - name: Verify compact global upper certificate twice
         run: |
           python scripts/verify_global_upper_certificate.py \

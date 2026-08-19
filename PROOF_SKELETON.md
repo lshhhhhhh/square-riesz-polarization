@@ -118,6 +118,25 @@ A2 的严格导数与补集间隙通过连续性/隐函数定理给出五个光�
 `data/certificates/n03_strict_local_optimality.json`。这仍不是 `P_3` 的全局
 最优性或精确等式证明。
 
+### A6. 显式定量局部半径 `[已严格证明]`
+
+把任意非零位移写成 `d=t*u`，其中 `u` 位于六维 `L_infinity` 单位盒的 12 个
+有符号面之一。对每个方向盒，证书使用两种充分条件：某个活跃观察分支沿整条
+射线一阶下降；或 KKT 正乘子加权平均沿整条射线二阶下降。移动底边观察点使用
+隐函数的 Schur-complement Hessian，不能冻结。
+
+GPU 只生成候选方向树；47,621 个叶均由纯有理算术重放，并对每个方向面检查
+prefix-free 与精确 Kraft 和为 1。结果为
+
+\[
+0<\lVert A-A^*\rVert_\infty\le10^{-4}
+\Longrightarrow I(A)<I(A^*).
+\]
+
+证书见 `data/certificates/n03_directional_local_cap_0_0001.json`，推导与信任边界见
+`N3_DIRECTIONAL_LOCAL_CAP_REPORT.md`。这把“存在某个 epsilon”的定性局部定理
+变成可供全局 branch-and-bound 调用的显式封口半径。
+
 ## B. 全局上界的计算机辅助路线
 
 ### B1. 源位置盒的有限见证上界 `[已证的基本引理]`
@@ -148,9 +167,9 @@ I(A)\le \operatorname{UB}(B_1,B_2,B_3;W).
 5. 浮点版本只测剪枝率；最终所有“已覆盖/已剪枝”判定必须用 exact rational 或
    outward-rounded interval 重放。
 
-### B3. 混合局部/全局证书 `[建议路线]`
+### B3. 混合局部/全局证书 `[局部端已完成]`
 
-- 候选邻域：用 A 部分的严格局部二阶上界处理，避免在最优点附近无限细分。
+- 候选邻域：现已有 A6 的 `1e-4` 显式严格局部封口，避免在最优点附近无限细分。
 - 邻域外：用 B1/B2 证明统一严格间隙 `I(A)<t_*`。
 
 这比单纯把六维空间细分到 `1e-8` 更可能收敛。

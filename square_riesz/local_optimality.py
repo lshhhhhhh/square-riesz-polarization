@@ -85,10 +85,12 @@ def interval_matrix_inverse(
     return inverse, determinant
 
 
-def fixed_observer_branch(
-    point: tuple[Q, Q], source_boxes: Sequence[SourceBox]
+def observer_branch_interval(
+    observer_x: Interval,
+    observer_y: Interval,
+    source_boxes: Sequence[SourceBox],
 ) -> tuple[list[Interval], IntervalMatrix]:
-    """Return source gradient and Hessian for one fixed observer point."""
+    """Enclose source gradient and Hessian over an observer interval box."""
 
     dimension = 2 * len(source_boxes)
     gradient = [Interval.point(0) for _ in range(dimension)]
@@ -96,8 +98,8 @@ def fixed_observer_branch(
         [Interval.point(0) for _ in range(dimension)] for _ in range(dimension)
     ]
     for source_index, (source_x, source_y) in enumerate(source_boxes):
-        dx = Interval.point(point[0]) - source_x
-        dy = Interval.point(point[1]) - source_y
+        dx = observer_x - source_x
+        dy = observer_y - source_y
         dx2 = square_interval(dx)
         dy2 = square_interval(dy)
         r2 = dx2 + dy2
@@ -116,6 +118,16 @@ def fixed_observer_branch(
     return gradient, hessian
 
 
+def fixed_observer_branch(
+    point: tuple[Q, Q], source_boxes: Sequence[SourceBox]
+) -> tuple[list[Interval], IntervalMatrix]:
+    """Return source gradient and Hessian for one fixed observer point."""
+
+    return observer_branch_interval(
+        Interval.point(point[0]), Interval.point(point[1]), source_boxes
+    )
+
+
 def moving_bottom_branch(
     source_boxes: Sequence[SourceBox],
 ) -> tuple[list[Interval], IntervalMatrix, Interval]:
@@ -125,13 +137,26 @@ def moving_bottom_branch(
     reflection symmetric, so this is its stationary bottom-edge observer.
     """
 
-    midpoint = (Q(1, 2), Q(0))
-    gradient, fixed_hessian = fixed_observer_branch(midpoint, source_boxes)
+    return moving_bottom_branch_interval(
+        Interval.point(Q(1, 2)), source_boxes
+    )
+
+
+def moving_bottom_branch_interval(
+    observer_x: Interval,
+    source_boxes: Sequence[SourceBox],
+) -> tuple[list[Interval], IntervalMatrix, Interval]:
+    """Enclose the moving-bottom-branch envelope Hessian over ``observer_x``."""
+
+    observer_y = Interval.point(0)
+    gradient, fixed_hessian = observer_branch_interval(
+        observer_x, observer_y, source_boxes
+    )
     cross: list[Interval] = []
     observer_xx = Interval.point(0)
     for source_index, (source_x, source_y) in enumerate(source_boxes):
-        dx = Interval.point(midpoint[0]) - source_x
-        dy = Interval.point(midpoint[1]) - source_y
+        dx = observer_x - source_x
+        dy = observer_y - source_y
         dx2 = square_interval(dx)
         dy2 = square_interval(dy)
         r2 = dx2 + dy2

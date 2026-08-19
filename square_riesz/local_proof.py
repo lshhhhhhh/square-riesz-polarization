@@ -75,6 +75,29 @@ def symmetric_source_enclosure(
     return centers, boxes
 
 
+def full_source_enclosure(
+    centers: Sequence[Point], radius: Q
+) -> tuple[SourceBox, ...]:
+    """Enclose independent motion of every source coordinate."""
+
+    if radius < 0:
+        raise ValueError("radius must be nonnegative")
+    boxes: list[SourceBox] = []
+    for source_x, source_y in centers:
+        if not (
+            radius < source_x < ONE - radius
+            and radius < source_y < ONE - radius
+        ):
+            raise ValueError("source box leaves the unit square")
+        boxes.append(
+            (
+                Interval(source_x - radius, source_x + radius),
+                Interval(source_y - radius, source_y + radius),
+            )
+        )
+    return tuple(boxes)
+
+
 def _square(interval: Interval) -> Interval:
     lower = interval.lower
     upper = interval.upper
@@ -178,6 +201,24 @@ def potential_derivative_intervals(
         uy += -2 * dy / r4
         uxx += (6 * dx2 - 2 * dy2) / r6
     return {"ux": ux, "uy": uy, "uxx": uxx}
+
+
+def point_potential_upper_bound(
+    point: Point, source_boxes: Sequence[SourceBox]
+) -> Q:
+    """Bound a fixed observer potential above over independent source boxes."""
+
+    point_x = Interval.point(point[0])
+    point_y = Interval.point(point[1])
+    result = ZERO
+    for source_x, source_y in source_boxes:
+        min_dx = _minimum_distance(point_x, source_x)
+        min_dy = _minimum_distance(point_y, source_y)
+        minimum_r2 = min_dx * min_dx + min_dy * min_dy
+        if minimum_r2 == 0:
+            raise ValueError("observer point intersects a source box")
+        result += ONE / minimum_r2
+    return result
 
 
 def _split(box: Box) -> tuple[Box, Box]:

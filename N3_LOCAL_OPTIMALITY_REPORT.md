@@ -194,3 +194,17 @@ The global equality problem remains the higher-risk step. The local theorem is
 useful as a rigorous cap for a future global source-space branch-and-bound near
 the candidate, but it does not by itself improve the numerical upper bound
 `7.58`.
+
+## Quantitative follow-up
+
+The later directional-cover certificate upgrades the existential neighborhood
+in this report to the explicit full six-dimensional bound
+
+\[
+0<\lVert A-A^*\rVert_\infty\le10^{-4}
+\Longrightarrow I(A)<I(A^*).
+\]
+
+See `N3_DIRECTIONAL_LOCAL_CAP_REPORT.md` and
+`data/certificates/n03_directional_local_cap_0_0001.json`. This remains a
+local result, not a proof of global optimality.
