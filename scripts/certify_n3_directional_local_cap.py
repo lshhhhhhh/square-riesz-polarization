@@ -28,6 +28,7 @@ from square_riesz.local_optimality import (
     fixed_observer_branch,
     moving_bottom_branch,
     moving_bottom_branch_interval,
+    square_interval,
     weighted_sum_hessian,
 )
 from square_riesz.local_proof import potential_derivative_intervals
@@ -69,6 +70,37 @@ def _coarse_enclosure(value: Q, error: Q, digits: int) -> Interval:
     return Interval(Q(lower, scale), Q(upper, scale))
 
 
+def _coarse_lower_point(value: Q, digits: int) -> Q:
+    scale = 10**digits
+    return Q(value.numerator * scale // value.denominator, scale)
+
+
+def _critical_difference_matrix(
+    center: dict[str, object], coarse_digits: int
+) -> tuple[tuple[Q, ...], ...]:
+    a = _coarse_lower_point(Q(center["a"]), coarse_digits)
+    b = _coarse_lower_point(Q(center["b"]), coarse_digits)
+    c = _coarse_lower_point(Q(center["c"]), coarse_digits)
+    coordinates = (a, b, Q(1) - a, b, Q(1, 2), c)
+    source_boxes = tuple(
+        (
+            Interval.point(coordinates[2 * source]),
+            Interval.point(coordinates[2 * source + 1]),
+        )
+        for source in range(3)
+    )
+    fixed = [fixed_observer_branch(point, source_boxes) for point in POINTS]
+    moving_gradient, _, _ = moving_bottom_branch(source_boxes)
+    gradients = [gradient for gradient, _ in fixed]
+    return tuple(
+        tuple(
+            gradients[row][column].lower - moving_gradient[column].lower
+            for column in range(6)
+        )
+        for row in range(4)
+    )
+
+
 def _quadratic_form(
     direction: list[Interval], matrix: list[list[Interval]]
 ) -> Interval:
@@ -89,6 +121,38 @@ def _linear_form(
         (direction[index] * gradient[index] for index in range(6)),
         start=Interval.point(0),
     )
+
+
+def _fixed_observer_directional_quadratic(
+    point: tuple[Q, Q],
+    source_boxes: tuple[tuple[Interval, Interval], ...],
+    direction: list[Interval],
+) -> Interval:
+    """Direct sparse fixed-observer quadratic form for one direction box."""
+
+    result = Interval.point(0)
+    point_x = Interval.point(point[0])
+    point_y = Interval.point(point[1])
+    for source, (source_x, source_y) in enumerate(source_boxes):
+        dx = point_x - source_x
+        dy = point_y - source_y
+        dx2 = square_interval(dx)
+        dy2 = square_interval(dy)
+        radius_squared = dx2 + dy2
+        radius_sixth = Interval(
+            radius_squared.lower**3, radius_squared.upper**3
+        )
+        hxx = (6 * dx2 - 2 * dy2) / radius_sixth
+        hyy = (6 * dy2 - 2 * dx2) / radius_sixth
+        mixed = 8 * dx * dy / radius_sixth
+        ux = direction[2 * source]
+        uy = direction[2 * source + 1]
+        result += (
+            square_interval(ux) * hxx
+            + 2 * ux * uy * mixed
+            + square_interval(uy) * hyy
+        )
+    return result
 
 
 def _offset_interval(direction: Interval, radius: Q) -> Interval:
@@ -128,19 +192,86 @@ class DirectionClassifier:
         weights: tuple[Interval, ...],
         radius: Q,
         bottom_curvature_lower: Q,
+        critical_difference_matrix: tuple[tuple[Q, ...], ...] | None = None,
+        critical_cone_ratio: Q | None = None,
     ) -> None:
         self.root_coordinates = root_coordinates
         self.weights = weights
         self.radius = radius
         self.bottom_curvature_lower = bottom_curvature_lower
+        self.critical_difference_matrix = critical_difference_matrix
+        self.critical_cone_ratio = critical_cone_ratio
         fixed = [fixed_observer_branch(point, root_source_boxes) for point in POINTS]
         moving_gradient, _, _ = moving_bottom_branch(root_source_boxes)
         self.root_gradients = [gradient for gradient, _ in fixed] + [moving_gradient]
 
-    def classify(self, direction: list[Interval]) -> tuple[str, int | None, Q] | None:
+    def classify(
+        self, direction: list[Interval], preferred_branch: int | None = None
+    ) -> tuple[str, int | None, Q] | None:
+        if self.critical_difference_matrix is not None:
+            if self.critical_cone_ratio is None:
+                raise RuntimeError("critical-cone ratio is missing")
+            transverse_norm_squared = sum(
+                (
+                    square_interval(
+                        sum(
+                            (
+                                coefficient * direction[column]
+                                for column, coefficient in enumerate(row)
+                            ),
+                            start=Interval.point(0),
+                        )
+                    )
+                    for row in self.critical_difference_matrix
+                ),
+                start=Interval.point(0),
+            )
+            direction_norm_squared = sum(
+                (square_interval(value) for value in direction),
+                start=Interval.point(0),
+            )
+            cone_margin = (
+                self.critical_cone_ratio**2 * direction_norm_squared.lower
+                - transverse_norm_squared.upper
+            )
+            if cone_margin >= 0:
+                return "critical_cone", None, cone_margin
         source_boxes = _ray_source_boxes(
             self.root_coordinates, direction, self.radius
         )
+        if preferred_branch is not None:
+            if type(preferred_branch) is not int or not 0 <= preferred_branch < 5:
+                raise ValueError("preferred branch must be an integer from 0 through 4")
+            preferred_quadratic = None
+            if preferred_branch < 4:
+                preferred_quadratic = _fixed_observer_directional_quadratic(
+                    POINTS[preferred_branch], source_boxes, direction
+                )
+            else:
+                midpoint_ux = potential_derivative_intervals(
+                    (Q(1, 2), Q(1, 2), Q(0), Q(0)), source_boxes
+                )["ux"]
+                shift = max(abs(midpoint_ux.lower), abs(midpoint_ux.upper)) / (
+                    self.bottom_curvature_lower
+                )
+                if shift < Q(1, 8):
+                    observer_x = Interval(Q(1, 2) - shift, Q(1, 2) + shift)
+                    _, preferred_hessian, _ = moving_bottom_branch_interval(
+                        observer_x, source_boxes
+                    )
+                    preferred_quadratic = _quadratic_form(
+                        direction, preferred_hessian
+                    )
+            if preferred_quadratic is not None:
+                linear = _linear_form(
+                    direction, self.root_gradients[preferred_branch]
+                )
+                margin = -(
+                    linear.upper
+                    + self.radius * max(preferred_quadratic.upper, Q(0)) / 2
+                )
+                if margin > 0:
+                    return "branch", preferred_branch, margin
         fixed = [fixed_observer_branch(point, source_boxes) for point in POINTS]
         midpoint_ux = potential_derivative_intervals(
             (Q(1, 2), Q(1, 2), Q(0), Q(0)), source_boxes
@@ -183,6 +314,7 @@ def _prepare_classifier(
     neighborhood_path: Path,
     radius: Q,
     coarse_digits: int,
+    critical_cone_path: Path | None = None,
 ) -> tuple[DirectionClassifier, Q]:
     kkt = json.loads(kkt_path.read_text(encoding="utf-8"))
     neighborhood = json.loads(neighborhood_path.read_text(encoding="utf-8"))
@@ -205,6 +337,25 @@ def _prepare_classifier(
         raise ValueError("the simple bottom-curvature bound is not justified")
 
     center = kkt["center"]
+    critical_ratio = None
+    critical_matrix = None
+    if critical_cone_path is not None:
+        critical = json.loads(critical_cone_path.read_text(encoding="utf-8"))
+        if (
+            critical.get("status") != "CLOSED"
+            or critical.get("rigor") != "exact_rational_interval_analysis"
+            or critical.get("negative_adjusted_matrix_certified") is not True
+        ):
+            raise ValueError("critical-cone prerequisite is not CLOSED")
+        if _fraction_string(critical.get("radius"), "critical radius") != radius:
+            raise ValueError("critical-cone radius does not match candidate radius")
+        if (
+            type(critical.get("coarse_digits")) is not int
+            or critical.get("coarse_digits") != coarse_digits
+        ):
+            raise ValueError("critical-cone coarse digits do not match verifier")
+        critical_ratio = _fraction_string(critical.get("eta"), "critical eta")
+        critical_matrix = _critical_difference_matrix(center, coarse_digits)
     a = _coarse_enclosure(Q(center["a"]), root_radius, coarse_digits)
     b = _coarse_enclosure(Q(center["b"]), root_radius, coarse_digits)
     c = _coarse_enclosure(Q(center["c"]), root_radius, coarse_digits)
@@ -237,12 +388,28 @@ def _prepare_classifier(
             weights,
             radius,
             bottom_curvature_lower,
+            critical_matrix,
+            critical_ratio,
         ),
         root_radius,
     )
 
 
-def _direction_from_root_path(root_id: int, path: str) -> list[Interval]:
+def _validated_split_sensitivities(value: object) -> tuple[Q, ...]:
+    if type(value) is not list or len(value) != 6:
+        raise ValueError("split_sensitivities must contain six exact strings")
+    result = tuple(_fraction_string(item, "split sensitivity") for item in value)
+    if any(item <= 0 for item in result):
+        raise ValueError("split sensitivities must be positive")
+    return result
+
+
+def _direction_from_root_path(
+    root_id: int,
+    path: str,
+    split_policy: str = "cyclic",
+    split_sensitivities: tuple[Q, ...] | None = None,
+) -> list[Interval]:
     if type(root_id) is not int or not 0 <= root_id < 12:
         raise ValueError("root_id must be an integer from 0 through 11")
     if type(path) is not str or any(bit not in "01" for bit in path):
@@ -253,7 +420,25 @@ def _direction_from_root_path(root_id: int, path: str) -> list[Interval]:
     direction[face_coordinate] = Interval.point(face_sign)
     free = [index for index in range(6) if index != face_coordinate]
     for depth, bit in enumerate(path):
-        split_coordinate = free[depth % 5]
+        if split_policy == "cyclic":
+            split_coordinate = free[depth % 5]
+        elif split_policy == "transverse-width":
+            if split_sensitivities is None:
+                raise ValueError("transverse-width policy needs sensitivities")
+            split_coordinate = free[0]
+            best_score = (
+                direction[split_coordinate].upper
+                - direction[split_coordinate].lower
+            ) * split_sensitivities[split_coordinate]
+            for coordinate in free[1:]:
+                score = (
+                    direction[coordinate].upper - direction[coordinate].lower
+                ) * split_sensitivities[coordinate]
+                if score > best_score:
+                    best_score = score
+                    split_coordinate = coordinate
+        else:
+            raise ValueError("unsupported split policy")
         value = direction[split_coordinate]
         midpoint = (value.lower + value.upper) / 2
         direction[split_coordinate] = (
@@ -264,7 +449,15 @@ def _direction_from_root_path(root_id: int, path: str) -> list[Interval]:
     return direction
 
 
-def _audit_candidate_coverage(leaves: list[object]) -> None:
+def _audit_candidate_coverage(
+    leaves: list[object],
+    split_policy: str = "cyclic",
+    split_sensitivities: tuple[Q, ...] | None = None,
+) -> None:
+    if split_policy not in ("cyclic", "transverse-width"):
+        raise ValueError("unsupported split policy")
+    if split_policy == "transverse-width" and split_sensitivities is None:
+        raise ValueError("transverse-width policy needs sensitivities")
     paths_by_root: list[list[str]] = [[] for _ in range(12)]
     seen: set[tuple[int, str]] = set()
     for raw_leaf in leaves:
@@ -272,7 +465,10 @@ def _audit_candidate_coverage(leaves: list[object]) -> None:
             raise ValueError("candidate leaves must be objects")
         root_id = raw_leaf.get("root_id")
         path = raw_leaf.get("path")
-        _direction_from_root_path(root_id, path)
+        if type(root_id) is not int or not 0 <= root_id < 12:
+            raise ValueError("root_id must be an integer from 0 through 11")
+        if type(path) is not str or any(bit not in "01" for bit in path):
+            raise ValueError("path must be a binary string")
         key = (root_id, path)
         if key in seen:
             raise ValueError("candidate tree contains a duplicate leaf")
@@ -289,22 +485,50 @@ def _audit_candidate_coverage(leaves: list[object]) -> None:
 
 
 _WORKER_CLASSIFIER: DirectionClassifier | None = None
+_WORKER_SPLIT_POLICY = "cyclic"
+_WORKER_SPLIT_SENSITIVITIES: tuple[Q, ...] | None = None
 
 
 def _initialize_worker(
-    kkt_path: str, neighborhood_path: str, radius: str, coarse_digits: int
+    kkt_path: str,
+    neighborhood_path: str,
+    radius: str,
+    coarse_digits: int,
+    critical_cone_path: str | None = None,
+    split_policy: str = "cyclic",
+    split_sensitivities: tuple[str, ...] | None = None,
 ) -> None:
-    global _WORKER_CLASSIFIER
+    global _WORKER_CLASSIFIER, _WORKER_SPLIT_POLICY, _WORKER_SPLIT_SENSITIVITIES
     _WORKER_CLASSIFIER = _prepare_classifier(
-        Path(kkt_path), Path(neighborhood_path), Q(radius), coarse_digits
+        Path(kkt_path),
+        Path(neighborhood_path),
+        Q(radius),
+        coarse_digits,
+        Path(critical_cone_path) if critical_cone_path is not None else None,
     )[0]
+    _WORKER_SPLIT_POLICY = split_policy
+    _WORKER_SPLIT_SENSITIVITIES = (
+        tuple(Q(item) for item in split_sensitivities)
+        if split_sensitivities is not None
+        else None
+    )
 
 
 def _verify_candidate_leaf(raw_leaf: dict[str, object]) -> tuple[bool, str, int | None, float]:
     if _WORKER_CLASSIFIER is None:
         raise RuntimeError("worker classifier was not initialized")
-    direction = _direction_from_root_path(raw_leaf["root_id"], raw_leaf["path"])
-    result = _WORKER_CLASSIFIER.classify(direction)
+    direction = _direction_from_root_path(
+        raw_leaf["root_id"],
+        raw_leaf["path"],
+        _WORKER_SPLIT_POLICY,
+        _WORKER_SPLIT_SENSITIVITIES,
+    )
+    preferred_branch = raw_leaf.get("branch_hint", raw_leaf.get("float_branch"))
+    if preferred_branch is not None and (
+        type(preferred_branch) is not int or not 0 <= preferred_branch < 5
+    ):
+        raise ValueError("float_branch hint must be an integer from 0 through 4")
+    result = _WORKER_CLASSIFIER.classify(direction, preferred_branch)
     if result is None:
         return False, "", None, 0.0
     criterion, branch, margin = result
@@ -319,6 +543,9 @@ def verify_candidate_tree(
     coarse_digits: int,
     workers: int,
     candidate_limit: int | None,
+    candidate_offset: int = 0,
+    candidate_criterion: str | None = None,
+    critical_cone_path: Path | None = None,
 ) -> dict[str, object]:
     candidate = json.loads(candidate_path.read_text(encoding="utf-8"))
     if candidate.get("status") != "closed_in_float_interval":
@@ -327,8 +554,38 @@ def verify_candidate_tree(
     raw_leaves = candidate.get("leaves")
     if type(raw_leaves) is not list:
         raise ValueError("candidate leaves are missing")
-    _audit_candidate_coverage(raw_leaves)
-    selected = raw_leaves if candidate_limit is None else raw_leaves[:candidate_limit]
+    split_policy = candidate.get("split_policy", "cyclic")
+    if split_policy not in ("cyclic", "transverse-width"):
+        raise ValueError("candidate split policy is unsupported")
+    split_sensitivities = (
+        _validated_split_sensitivities(candidate.get("split_sensitivities"))
+        if split_policy == "transverse-width"
+        else None
+    )
+    if critical_cone_path is None and any(
+        leaf.get("float_criterion") == "critical_cone"
+        for leaf in raw_leaves
+        if type(leaf) is dict
+    ):
+        raise ValueError("critical-cone leaves require an exact cone prerequisite")
+    _audit_candidate_coverage(
+        raw_leaves, split_policy, split_sensitivities
+    )
+    selectable_leaves = (
+        [
+            leaf
+            for leaf in raw_leaves
+            if type(leaf) is dict
+            and leaf.get("float_criterion") == candidate_criterion
+        ]
+        if candidate_criterion is not None
+        else raw_leaves
+    )
+    if candidate_offset < 0 or candidate_offset > len(selectable_leaves):
+        raise ValueError("candidate offset is outside the leaf list")
+    selected = selectable_leaves[candidate_offset:]
+    if candidate_limit is not None:
+        selected = selected[:candidate_limit]
     started = perf_counter()
     actual_leaves = []
     failures = []
@@ -338,6 +595,13 @@ def verify_candidate_tree(
         str(neighborhood_path),
         str(radius),
         coarse_digits,
+        str(critical_cone_path) if critical_cone_path is not None else None,
+        split_policy,
+        (
+            tuple(str(value) for value in split_sensitivities)
+            if split_sensitivities is not None
+            else None
+        ),
     )
     if workers == 1:
         _initialize_worker(*initializer_arguments)
@@ -363,6 +627,11 @@ def verify_candidate_tree(
                         "path": raw_leaf["path"],
                         "criterion": criterion,
                         "branch": branch,
+                        **(
+                            {"branch_hint": raw_leaf["float_branch"]}
+                            if "float_branch" in raw_leaf
+                            else {}
+                        ),
                     }
                 )
             else:
@@ -383,10 +652,18 @@ def verify_candidate_tree(
     finally:
         if executor is not None:
             executor.shutdown()
-    complete = candidate_limit is None
+    complete = (
+        candidate_limit is None
+        and candidate_offset == 0
+        and candidate_criterion is None
+    )
     status = "VERIFIED" if complete and not failures else "INCOMPLETE"
     _, root_radius = _prepare_classifier(
-        kkt_path, neighborhood_path, radius, coarse_digits
+        kkt_path,
+        neighborhood_path,
+        radius,
+        coarse_digits,
+        critical_cone_path,
     )
     return {
         "schema_version": 1,
@@ -405,6 +682,18 @@ def verify_candidate_tree(
                 "path": _display_path(neighborhood_path),
                 "canonical_json_sha256": _canonical_json_sha256(neighborhood_path),
             },
+            **(
+                {
+                    "critical_cone": {
+                        "path": _display_path(critical_cone_path),
+                        "canonical_json_sha256": _canonical_json_sha256(
+                            critical_cone_path
+                        ),
+                    }
+                }
+                if critical_cone_path is not None
+                else {}
+            ),
         },
         "candidate_provenance": {
             "method": "untrusted GPU binary64 interval-formula tree proposal",
@@ -413,7 +702,15 @@ def verify_candidate_tree(
         "root_centered_linf_radius": str(radius),
         "center_box_linf_radius": str(radius - root_radius),
         "coarse_enclosure_digits": coarse_digits,
+        "split_policy": split_policy,
+        "split_sensitivities": (
+            [str(value) for value in split_sensitivities]
+            if split_sensitivities is not None
+            else None
+        ),
         "candidate_leaf_count": len(raw_leaves),
+        "candidate_offset": candidate_offset,
+        "candidate_criterion_filter": candidate_criterion,
         "checked_leaf_count": len(selected),
         "failure_count": len(failures),
         "failures": failures[:100],
@@ -602,8 +899,14 @@ def main() -> None:
     parser.add_argument("--max-depth", type=int, default=30)
     parser.add_argument("--max-leaves", type=int, default=100000)
     parser.add_argument("--candidate-tree", type=Path)
+    parser.add_argument("--critical-cone-certificate", type=Path)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--candidate-limit", type=int)
+    parser.add_argument("--candidate-offset", type=int, default=0)
+    parser.add_argument(
+        "--candidate-criterion",
+        choices=("branch", "weighted", "critical_cone"),
+    )
     parser.add_argument(
         "--output",
         type=Path,
@@ -627,6 +930,9 @@ def main() -> None:
             coarse_digits=args.coarse_digits,
             workers=args.workers,
             candidate_limit=args.candidate_limit,
+            candidate_offset=args.candidate_offset,
+            candidate_criterion=args.candidate_criterion,
+            critical_cone_path=args.critical_cone_certificate,
         )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     temporary = args.output.with_suffix(args.output.suffix + ".tmp")

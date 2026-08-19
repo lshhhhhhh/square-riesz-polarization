@@ -126,11 +126,12 @@ P_3\le 7.58.
 与空间覆盖证明：该真根的全局最暗观察点**恰好**是四角和下边中点，五个邻域外
 比根值至少高 `0.1`。最后，完整六维五分支 epigraph 的 LICQ、严格正乘子以及
 移动底边极小的包络 Hessian 二阶充分条件也已由纯有理区间闭合。因此，高精度
-真根在三个**有序**源的完整六维空间中是严格局部最大点。进一步的 12 面方向
-覆盖用 47,621 个纯有理叶证明了显式定量版本：以真根为中心的完整六维
-`L_infinity` 半径 `1e-4` 内，除真根外所有构型都严格更差；相对先前
-`7.3298e-6` 的粗两锥半径扩大约 `13.64` 倍。详见
-[N3_DIRECTIONAL_LOCAL_CAP_REPORT.md](./N3_DIRECTIONAL_LOCAL_CAP_REPORT.md)。这仍
+真根在三个**有序**源的完整六维空间中是严格局部最大点。第一版 12 面方向覆盖
+用 47,621 个纯有理叶证明半径 `1e-4`。新的临界锥/S-lemma 分解以 64 个精确
+三阶导数子盒控制 Hessian 变化，并对 260,234 个方向叶作全量纯有理重放，把
+完整六维 `L_infinity` 严格局部半径扩大到 `1e-3`；相对第一版再扩大 10 倍，
+相对最早 `7.3298e-6` 的粗两锥半径扩大约 `136.43` 倍。详见
+[N3_CRITICAL_CONE_LOCAL_CAP_REPORT.md](./N3_CRITICAL_CONE_LOCAL_CAP_REPORT.md)。这仍
 **不证明 N=3 全局最优**；全局等式风险与下一闸门见
 [PROOF_SKELETON.md](./PROOF_SKELETON.md)。
 
@@ -232,6 +233,7 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 - [N3_ACTIVE_MINIMA_REPORT.md](./N3_ACTIVE_MINIMA_REPORT.md)：新 A2 证书的独立复核说明、严格声明边界与对抗检查清单。
 - [N3_LOCAL_OPTIMALITY_REPORT.md](./N3_LOCAL_OPTIMALITY_REPORT.md)：完整六维严格局部最优定理、精确区间余量与独立复核路线。
 - [N3_DIRECTIONAL_LOCAL_CAP_REPORT.md](./N3_DIRECTIONAL_LOCAL_CAP_REPORT.md)：`1e-4` 六维显式严格局部半径、方向覆盖引理、47,621 叶精确重放与信任边界。
+- [N3_CRITICAL_CONE_LOCAL_CAP_REPORT.md](./N3_CRITICAL_CONE_LOCAL_CAP_REPORT.md)：临界锥、64 子盒三阶导数界、260,234 叶精确重放与 `1e-3` 六维局部半径。
 - [scripts/record_hunt.py](./scripts/record_hunt.py)：GPU 生产者与 CPU 连续域验证并行、可恢复的纪录搜索器。
 - [data/candidates/n03_symmetric.json](./data/candidates/n03_symmetric.json)：冻结坐标、高精度 KKT 与连续域诊断。
 - [data/candidates/n05_hunt_best.json](./data/candidates/n05_hunt_best.json)：首轮严格超过 Friedman 显示值的 `N=5` 构型。
@@ -250,6 +252,9 @@ Borodachov–Bosuwan 证明，对面积为 1 的二维集合，在 `s=d=2` 时
 - [scripts/certify_n3_local_optimality.py](./scripts/certify_n3_local_optimality.py)：重放完整六维严格局部最优检验。
 - [data/certificates/n03_full_source_neighborhood.json](./data/certificates/n03_full_source_neighborhood.json)：半径 `0.003` 内五个观察分支的统一隔离与移动底边分支正则性证书。
 - [data/certificates/n03_directional_local_cap_0_0001.json](./data/certificates/n03_directional_local_cap_0_0001.json)：47,621 叶纯有理方向覆盖证书，证明真根周围六维半径 `1e-4` 的严格支配。
+- [data/certificates/n03_critical_cone_r0_001.json](./data/certificates/n03_critical_cone_r0_001.json)：64 个源子盒的纯有理三阶导数与 S-lemma 临界锥矩阵证书。
+- [data/certificates/n03_directional_local_cap_0_001.json](./data/certificates/n03_directional_local_cap_0_001.json)：260,234 叶纯有理方向覆盖证书，证明真根周围六维半径 `1e-3` 的严格支配。
+- [scripts/verify_n3_critical_cone.py](./scripts/verify_n3_critical_cone.py)：从 KKT 输入重算临界锥三阶区间与矩阵判定。
 - [scripts/verify_n3_directional_local_cap.py](./scripts/verify_n3_directional_local_cap.py)：不信任 GPU 候选判定的独立精确重放入口。
 - [scripts/verify_global_upper_certificate_cleanroom.py](./scripts/verify_global_upper_certificate_cleanroom.py)：审查后加固的第二套纯标准库全局上界验证器。
 - [data/certificates/n05_spectral_target_22_06.json](./data/certificates/n05_spectral_target_22_06.json)：`N=5` spectral 精确下界证书。

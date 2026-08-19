@@ -20,6 +20,7 @@ from scripts.certify_n3_active_minima import _canonical_json_sha256
 from scripts.certify_n3_directional_local_cap import (
     _audit_candidate_coverage,
     _initialize_worker,
+    _validated_split_sensitivities,
     _verify_candidate_leaf,
 )
 
@@ -43,6 +44,7 @@ def main() -> None:
         type=Path,
         default=PROJECT_ROOT / "data/certificates/n03_full_source_neighborhood.json",
     )
+    parser.add_argument("--critical-cone-certificate", type=Path)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--limit", type=int)
     args = parser.parse_args()
@@ -57,6 +59,19 @@ def main() -> None:
         "kkt": _canonical_json_sha256(args.kkt_certificate),
         "active_neighborhood": _canonical_json_sha256(args.active_neighborhood),
     }
+    critical_cone_path = args.critical_cone_certificate
+    critical_entry = prerequisites.get("critical_cone")
+    if critical_entry is not None:
+        if type(critical_entry) is not dict:
+            raise ValueError("critical_cone prerequisite is malformed")
+        if critical_cone_path is None:
+            stored_path = critical_entry.get("path")
+            if type(stored_path) is not str:
+                raise ValueError("critical_cone prerequisite path is missing")
+            critical_cone_path = PROJECT_ROOT / stored_path
+        expected_hashes["critical_cone"] = _canonical_json_sha256(
+            critical_cone_path
+        )
     for name, expected in expected_hashes.items():
         entry = prerequisites.get(name)
         if type(entry) is not dict or entry.get("canonical_json_sha256") != expected:
@@ -68,7 +83,13 @@ def main() -> None:
         raise ValueError("candidate leaf count is inconsistent")
     if artifact.get("failure_count") != 0 or artifact.get("failures") != []:
         raise ValueError("published certificate records failed leaves")
-    _audit_candidate_coverage(leaves)
+    split_policy = artifact.get("split_policy", "cyclic")
+    split_sensitivities = (
+        _validated_split_sensitivities(artifact.get("split_sensitivities"))
+        if split_policy == "transverse-width"
+        else None
+    )
+    _audit_candidate_coverage(leaves, split_policy, split_sensitivities)
     selected = leaves if args.limit is None else leaves[: args.limit]
     radius = Q(artifact["root_centered_linf_radius"])
     digits = artifact.get("coarse_enclosure_digits")
@@ -80,6 +101,13 @@ def main() -> None:
         str(args.active_neighborhood),
         str(radius),
         digits,
+        str(critical_cone_path) if critical_cone_path is not None else None,
+        split_policy,
+        (
+            tuple(str(value) for value in split_sensitivities)
+            if split_sensitivities is not None
+            else None
+        ),
     )
     started = perf_counter()
     if args.workers == 1:
